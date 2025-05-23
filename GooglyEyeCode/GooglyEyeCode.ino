@@ -65,8 +65,8 @@ void loop() {
 
   // When we have reached the end power down
   if (
-    pupilStepper.distanceToGo() == 0
-    && glintStepper.distanceToGo() == 0) {
+    !pupilStepper.isRunning()
+    && !glintStepper.isRunning()) {
     pupilStepper.disableOutputs();
     glintStepper.disableOutputs();
   }
