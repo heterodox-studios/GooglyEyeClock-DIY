@@ -25,6 +25,10 @@ private:
   int _pin4;
   int _homeSensorPin;
   bool _home_detected();
+
+  float _current_angle;
+  float _target_angle;
+
   int _steps_per_rotation;
   int _steps_across_home_sensor;
 };

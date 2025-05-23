@@ -21,6 +21,8 @@ Motor glintMotor(
 
 void setup() {
   Serial.begin(115200);
+  Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+
 
   pupilMotor.calibrate();
   Serial.print(pupilMotor.debug());
