@@ -5,7 +5,8 @@
 #include "Arduino.h"
 #include "Motor.h"
 
-Motor::Motor(int pin1, int pin2, int pin3, int pin4, int homeSensorPin) {
+Motor::Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin) {
+  _name = name;
   _pin1 = pin1;
   _pin2 = pin2;
   _pin3 = pin3;
@@ -58,7 +59,6 @@ void Motor::calibrate() {
   // stop the motion and return to the center of the home position gently
   _stepper.moveTo(_stepper.currentPosition() - _steps_across_home_sensor / 2);
   while (_stepper.run()) 1;
-
 }
 
 void Motor::sleep() {
@@ -70,16 +70,19 @@ void Motor::sleep() {
 String Motor::debug() {
   String out = "";
 
-  out += "_steps_per_rotation: ";
+  out += "#### " + _name + " ####\n";
+
+  out += "# _steps_per_rotation: ";
   out += _steps_per_rotation;
   out += "\n";
 
-  out += "_steps_across_home_sensor: ";
+  out += "# _steps_across_home_sensor: ";
   out += _steps_across_home_sensor;
   out += "\n";
 
-
-
+  out += "# current steps position: ";
+  out += _stepper.currentPosition();
+  out += "\n\n";
 
   return out;
 }

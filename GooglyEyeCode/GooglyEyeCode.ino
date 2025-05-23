@@ -4,6 +4,7 @@
 
 
 Motor pupilMotor(
+  "Pupil",
   pupilStepperPin1,
   pupilStepperPin2,
   pupilStepperPin3,
@@ -11,6 +12,7 @@ Motor pupilMotor(
   pupilLightGatePin);
 
 Motor glintMotor(
+  "Glint",
   glintStepperPin1,
   glintStepperPin2,
   glintStepperPin3,

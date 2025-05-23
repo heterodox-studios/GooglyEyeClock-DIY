@@ -12,12 +12,13 @@
 
 class Motor {
 public:
-  Motor(int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
+  Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
   void calibrate();
   void sleep();
   String debug();
 private:
   AccelStepper _stepper;
+  String _name;
   int _pin1;
   int _pin2;
   int _pin3;
