@@ -39,7 +39,7 @@ bool Motor::_home_detected() {
 float Motor::goto_angle(float angle) {
 
   // if angle is less than current add 360, we only want to move in one direction
-  if (angle < _current_angle) {
+  while (angle < _current_angle) {
     angle += 360;
   }
 
@@ -58,6 +58,15 @@ float Motor::goto_angle(float angle) {
 
   // keep the current angle in the range 0-360
   while (_current_angle > 360) _current_angle -= 360;
+
+  return angle_delta;
+}
+
+void Motor::adjust_angle(float angle) {
+  _current_angle += angle;
+
+  while (_current_angle >= 360)
+    _current_angle -= 360;
 }
 
 void Motor::calibrate() {
@@ -100,14 +109,38 @@ void Motor::calibrate() {
   _current_angle = 0;
 }
 
+float Motor::measure_angle_to_home() {
+  long starting_position = _stepper.currentPosition();
+
+  _stepper.moveTo(starting_position + _steps_per_rotation * 100);  // 100 revolutions of motor
+
+  while (!_home_detected())
+    _stepper.run();
+
+  _stepper.move(_steps_across_home_sensor / 2);
+  while (_stepper.run()) 1;
+
+
+  long found_home = _stepper.currentPosition();
+  long steps_taken = found_home - starting_position;
+  float angle = steps_taken * (360.0 / _steps_per_rotation);
+
+  _current_angle = 0;
+
+  Serial.print("Angle to home: ");
+  Serial.println(angle);
+
+  return angle;
+}
+
 void Motor::sleep() {
   _stepper.disableOutputs();
 }
 
-String Motor::debug() {
+String Motor::debug(String note) {
   String out = "";
 
-  out += "#### " + _name + " ####\n";
+  out += "#### " + _name + " - " + note + " ####\n";
 
   out += "# _steps_per_rotation: ";
   out += _steps_per_rotation;

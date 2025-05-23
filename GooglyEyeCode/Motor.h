@@ -14,9 +14,12 @@ class Motor {
 public:
   Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
   void calibrate();
+  float measure_angle_to_home();
+
   float goto_angle(float angle);
+  void adjust_angle(float angle);
   void sleep();
-  String debug();
+  String debug(String note = "");
 private:
   AccelStepper _stepper;
   String _name;

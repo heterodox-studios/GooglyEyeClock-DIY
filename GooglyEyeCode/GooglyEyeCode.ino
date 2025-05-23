@@ -29,22 +29,46 @@ void setup() {
   glintMotor.calibrate();
   Serial.print(glintMotor.debug());
 
-  pupilMotor.goto_angle(45);
-  Serial.print(pupilMotor.debug());
-  Serial.print(glintMotor.debug());
+  float delta = 0;
+  delta = pupilMotor.goto_angle(180);
+  delta = pupilMotor.goto_angle(360);
+
+  float drift_angle_360 = glintMotor.measure_angle_to_home();
+  float adjustment_per_degree = drift_angle_360 / 360;
+
+  Serial.println(drift_angle_360);
+  Serial.println(adjustment_per_degree);
   delay(1000);
 
-  pupilMotor.goto_angle(180);
-  Serial.print(pupilMotor.debug());
-  Serial.print(glintMotor.debug());
+  // delta = pupilMotor.goto_angle(180);
+  // delta = pupilMotor.goto_angle(0);
+
+
+  delta = pupilMotor.goto_angle(180);
+  glintMotor.adjust_angle(180);
+  glintMotor.adjust_angle(-delta * adjustment_per_degree);
+  glintMotor.goto_angle(0);
+
   delay(1000);
 
-  pupilMotor.goto_angle(0);
+
+  delta = pupilMotor.goto_angle(0);
+  Serial.println(delta);
   Serial.print(pupilMotor.debug());
-  Serial.print(glintMotor.debug());
+
+  Serial.print(glintMotor.debug("pre adjust"));
+  glintMotor.adjust_angle(180);
+  glintMotor.adjust_angle(-delta * adjustment_per_degree);
+
+  Serial.print(glintMotor.debug("post adjust"));
+
+  glintMotor.goto_angle(0);
+  Serial.print(glintMotor.debug("post goto"));
+
   delay(1000);
 
-  
+
+
   pupilMotor.sleep();
   glintMotor.sleep();
 }
