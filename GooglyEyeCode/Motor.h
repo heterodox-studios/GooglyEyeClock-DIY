@@ -12,9 +12,8 @@
 
 class Motor {
 public:
-  Motor(int pin1, int pin2, int pin3, int pin4);
-  void moveTo(long position);
-  void run();
+  Motor(int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
+  void calibrate();
   String debug();
 private:
   AccelStepper _stepper;
@@ -22,6 +21,9 @@ private:
   int _pin2;
   int _pin3;
   int _pin4;
+  int _homeSensorPin;
+  bool _home_detected();
+  int _steps_per_rotation;
 };
 
 #endif

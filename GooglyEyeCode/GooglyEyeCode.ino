@@ -7,7 +7,8 @@ Motor pupilMotor(
   pupilStepperPin1,
   pupilStepperPin2,
   pupilStepperPin3,
-  pupilStepperPin4);
+  pupilStepperPin4,
+  pupilLightGatePin);
 
 // AccelStepper glintStepper(
 //   AccelStepper::HALF4WIRE,
@@ -21,7 +22,7 @@ void setup() {
   Serial.begin(115200);
 
 
-  pupilMotor.moveTo(20480);
+  pupilMotor.calibrate();
   // Serial.println("moveTo");
 
   // glintStepper.setMaxSpeed(1000);
@@ -60,7 +61,7 @@ void loop() {
   // Serial.println(millis());
   // Serial.println(pupilMotor.debug());
 
-  pupilMotor.run();
+  // pupilMotor.run();
   // glintStepper.run();
 
   // When we have reached the end power down
