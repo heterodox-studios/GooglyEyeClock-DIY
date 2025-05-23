@@ -22,6 +22,9 @@ void setup() {
 
   pupilMotor.calibrate();
   glintMotor.calibrate();
+
+  pupilMotor.sleep();
+  glintMotor.sleep();
 }
 
 

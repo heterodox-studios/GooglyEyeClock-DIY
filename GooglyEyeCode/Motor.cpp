@@ -63,7 +63,9 @@ void Motor::calibrate() {
   Serial.println(_steps_per_rotation);
 }
 
-
+void Motor::sleep() {
+  _stepper.disableOutputs();
+}
 
 
 
