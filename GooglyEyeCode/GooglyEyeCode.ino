@@ -23,13 +23,28 @@ void setup() {
   Serial.begin(115200);
   Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
-
   pupilMotor.calibrate();
   Serial.print(pupilMotor.debug());
 
   glintMotor.calibrate();
   Serial.print(glintMotor.debug());
 
+  pupilMotor.goto_angle(45);
+  Serial.print(pupilMotor.debug());
+  Serial.print(glintMotor.debug());
+  delay(1000);
+
+  pupilMotor.goto_angle(180);
+  Serial.print(pupilMotor.debug());
+  Serial.print(glintMotor.debug());
+  delay(1000);
+
+  pupilMotor.goto_angle(0);
+  Serial.print(pupilMotor.debug());
+  Serial.print(glintMotor.debug());
+  delay(1000);
+
+  
   pupilMotor.sleep();
   glintMotor.sleep();
 }

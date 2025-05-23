@@ -14,6 +14,7 @@ class Motor {
 public:
   Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
   void calibrate();
+  float goto_angle(float angle);
   void sleep();
   String debug();
 private:
@@ -27,7 +28,6 @@ private:
   bool _home_detected();
 
   float _current_angle;
-  float _target_angle;
 
   int _steps_per_rotation;
   int _steps_across_home_sensor;

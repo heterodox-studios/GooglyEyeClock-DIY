@@ -13,21 +13,19 @@ Motor::Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensor
   _pin4 = pin4;
   _homeSensorPin = homeSensorPin;
 
-  AccelStepper ourStepper(
+  _stepper = AccelStepper(
     AccelStepper::HALF4WIRE,
     _pin1,
     _pin3,  // Note 2 and 3 swapped for 28BYJ motor wiring
     _pin2,
     _pin4);
 
-  _stepper = ourStepper;
   _stepper.setMaxSpeed(1000);
   _stepper.setAcceleration(1000.0);
 
   pinMode(_homeSensorPin, INPUT_PULLUP);
 
   _current_angle = 0;
-  _target_angle = 0;
 
   // starting values that should be corrected by calibration
   _steps_per_rotation = 2048 * 2;  // basic value for a 28BYJ stepper
@@ -36,6 +34,30 @@ Motor::Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensor
 
 bool Motor::_home_detected() {
   return !digitalRead(_homeSensorPin);
+}
+
+float Motor::goto_angle(float angle) {
+
+  // if angle is less than current add 360, we only want to move in one direction
+  if (angle < _current_angle) {
+    angle += 360;
+  }
+
+  float angle_delta = angle - _current_angle;
+
+  // calculate the number of steps to move
+  int steps_to_move = round(angle_delta / 360.0 * _steps_per_rotation);
+
+  // move to the target position
+  _stepper.move(steps_to_move);
+  while (_stepper.run()) 1;
+
+  // update the current angle
+  float degrees_per_step = 360.0 / _steps_per_rotation;
+  _current_angle += steps_to_move * degrees_per_step;
+
+  // keep the current angle in the range 0-360
+  while (_current_angle > 360) _current_angle -= 360;
 }
 
 void Motor::calibrate() {
@@ -76,7 +98,6 @@ void Motor::calibrate() {
 
   // reset the current angle with the center of home as 0
   _current_angle = 0;
-  _target_angle = 0;
 }
 
 void Motor::sleep() {
@@ -102,10 +123,6 @@ String Motor::debug() {
 
   out += "# current angle: ";
   out += _current_angle;
-  out += "\n";
-
-  out += "# target angle: ";
-  out += _target_angle;
   out += "\n";
 
   out += "\n";
