@@ -25,6 +25,7 @@ private:
   int _homeSensorPin;
   bool _home_detected();
   int _steps_per_rotation;
+  int _steps_across_home_sensor;
 };
 
 #endif

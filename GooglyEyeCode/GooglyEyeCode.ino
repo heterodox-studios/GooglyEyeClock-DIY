@@ -21,7 +21,10 @@ void setup() {
   Serial.begin(115200);
 
   pupilMotor.calibrate();
+  Serial.print(pupilMotor.debug());
+
   glintMotor.calibrate();
+  Serial.print(glintMotor.debug());
 
   pupilMotor.sleep();
   glintMotor.sleep();

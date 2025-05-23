@@ -27,6 +27,7 @@ Motor::Motor(int pin1, int pin2, int pin3, int pin4, int homeSensorPin) {
 
   // starting values that should be corrected by calibration
   _steps_per_rotation = 2048 * 2;  // basic value for a 28BYJ stepper
+  _steps_across_home_sensor = 0;
 }
 
 bool Motor::_home_detected() {
@@ -45,22 +46,19 @@ void Motor::calibrate() {
   while (!_home_detected()) _stepper.run();
 
   long first_stop = _stepper.currentPosition();
-  Serial.println(first_stop);
 
   // go again until we stop again
   while (_home_detected()) _stepper.run();
+  _steps_across_home_sensor = _stepper.currentPosition() - first_stop;
   while (!_home_detected()) _stepper.run();
 
   long second_stop = _stepper.currentPosition();
-  Serial.println(second_stop);
+  _steps_per_rotation = second_stop - first_stop;
 
-  // stop the motion and return to the home position gently
-  _stepper.moveTo(_stepper.currentPosition());
+  // stop the motion and return to the center of the home position gently
+  _stepper.moveTo(_stepper.currentPosition() - _steps_across_home_sensor / 2);
   while (_stepper.run()) 1;
 
-  // store the calibration results
-  _steps_per_rotation = second_stop - first_stop;
-  Serial.println(_steps_per_rotation);
 }
 
 void Motor::sleep() {
@@ -71,6 +69,17 @@ void Motor::sleep() {
 
 String Motor::debug() {
   String out = "";
-  out += _pin1;
+
+  out += "_steps_per_rotation: ";
+  out += _steps_per_rotation;
+  out += "\n";
+
+  out += "_steps_across_home_sensor: ";
+  out += _steps_across_home_sensor;
+  out += "\n";
+
+
+
+
   return out;
 }
