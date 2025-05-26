@@ -37,16 +37,15 @@ public:
     
     So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
 
-    To reverse use B+, B-, A-, A+ == 3, 1, 4, 2
-  */
+    To reverse use A-, A+, B+, B- == 4, 2, 3, 1  */
 
     if (reverse_direction) {
       _stepper = AccelStepper(
         AccelStepper::HALF4WIRE,
-        _pin3,
-        _pin1,
+        _pin4,
         _pin2,
-        _pin4);
+        _pin3,
+        _pin1);
     } else {
       _stepper = AccelStepper(
         AccelStepper::HALF4WIRE,
