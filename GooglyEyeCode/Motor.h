@@ -12,7 +12,14 @@
 
 class Motor {
 public:
-  Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin);
+  Motor(
+    String name,
+    int pin1,
+    int pin2,
+    int pin3,
+    int pin4,
+    int homeSensorPin,
+    bool reverse_direction = false);
   void calibrate();
   float measure_angle_to_home();
 

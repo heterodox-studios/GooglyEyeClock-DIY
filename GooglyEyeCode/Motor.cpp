@@ -5,7 +5,11 @@
 #include "Arduino.h"
 #include "Motor.h"
 
-Motor::Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensorPin) {
+Motor::Motor(
+  String name,
+  int pin1, int pin2, int pin3, int pin4,
+  int homeSensorPin,
+  bool reverse_direction) {
   _name = name;
   _pin1 = pin1;
   _pin2 = pin2;
@@ -13,12 +17,35 @@ Motor::Motor(String name, int pin1, int pin2, int pin3, int pin4, int homeSensor
   _pin4 = pin4;
   _homeSensorPin = homeSensorPin;
 
-  _stepper = AccelStepper(
-    AccelStepper::HALF4WIRE,
-    _pin1,
-    _pin3,  // Note 2 and 3 swapped for 28BYJ motor wiring
-    _pin2,
-    _pin4);
+  /*
+    For the 28BYJ-48 stepper motor, the wiring by default is as follows:
+    - IN1   Blue    B- 
+    - IN2   Pink    A+
+    - IN3   Yellow  B+
+    - IN4   Orange  A-
+    - Vmot  Red
+    
+    So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
+
+    To reverse use B+, B-, A-, A+ == 3, 1, 4, 2
+  */
+
+  if (reverse_direction) {
+    _stepper = AccelStepper(
+      AccelStepper::HALF4WIRE,
+      _pin3,
+      _pin1,
+      _pin2,
+      _pin4);
+  } else {
+    _stepper = AccelStepper(
+      AccelStepper::HALF4WIRE,
+      _pin1,
+      _pin3,
+      _pin2,
+      _pin4);
+  }
+
 
   _stepper.setMaxSpeed(1000);
   _stepper.setAcceleration(1000.0);

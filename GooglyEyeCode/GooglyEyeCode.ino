@@ -9,7 +9,8 @@ Motor pupilMotor(
   pupilStepperPin2,
   pupilStepperPin3,
   pupilStepperPin4,
-  pupilLightGatePin);
+  pupilLightGatePin,
+  true);
 
 Motor glintMotor(
   "Glint",
@@ -17,7 +18,8 @@ Motor glintMotor(
   glintStepperPin2,
   glintStepperPin3,
   glintStepperPin4,
-  glintHallEffectPin);
+  glintHallEffectPin,
+  true);
 
 void setup() {
   Serial.begin(115200);
