@@ -56,8 +56,7 @@ public:
     }
 
 
-    _stepper.setMaxSpeed(1000);
-    _stepper.setAcceleration(1000.0);
+    fast_mode();
 
     pinMode(_homeSensorPin, INPUT_PULLUP);
 
@@ -143,6 +142,8 @@ public:
     // calculate the number of steps to move
     int steps_to_move = round(angle_delta / 360.0 * _steps_per_rotation);
 
+    Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
+
     // move to the target position
     _stepper.move(steps_to_move);
     while (_stepper.run()) 1;
@@ -152,7 +153,8 @@ public:
     _current_angle += steps_to_move * degrees_per_step;
 
     // keep the current angle in the range 0-360
-    while (_current_angle > 360) _current_angle -= 360;
+    while (_current_angle > 360)
+      _current_angle -= 360.0;
 
     return angle_delta;
   };
@@ -162,11 +164,25 @@ public:
     _current_angle += angle;
 
     while (_current_angle >= 360)
-      _current_angle -= 360;
+      _current_angle -= 360.0;
+  };
+
+  void fast_mode() {
+    _stepper.setMaxSpeed(1000);
+    _stepper.setAcceleration(1000.0);
+  };
+
+  void slow_mode() {
+    _stepper.setMaxSpeed(100);
+    _stepper.setAcceleration(50.0);
   };
 
   void sleep() {
     _stepper.disableOutputs();
+  };
+
+  void wake() {
+    _stepper.enableOutputs();
   };
 
   String debug(String note = "") {

@@ -26,10 +26,7 @@ void setup() {
   Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
   pupilMotor.calibrate();
-  Serial.print(pupilMotor.debug());
-
   glintMotor.calibrate();
-  Serial.print(glintMotor.debug());
 
   float delta = 0;
   delta = pupilMotor.goto_angle(180);
@@ -38,50 +35,44 @@ void setup() {
   float drift_angle_360 = glintMotor.measure_angle_to_home();
   float adjustment_per_degree = drift_angle_360 / 360;
 
-  Serial.println(drift_angle_360);
-  Serial.println(adjustment_per_degree);
-  delay(1000);
+  pupilMotor.slow_mode();
+  glintMotor.slow_mode();
 
-  // delta = pupilMotor.goto_angle(180);
-  // delta = pupilMotor.goto_angle(0);
+  for (int sec = 0; sec <= 12 * 60 * 3600; sec++) {
 
+    if (sec % 60 != 0)
+      continue;
 
-  delta = pupilMotor.goto_angle(180);
-  glintMotor.adjust_angle(180);
-  glintMotor.adjust_angle(-delta * adjustment_per_degree);
-  glintMotor.goto_angle(0);
+    float mins = sec / 60.0;
+    float hours = mins / 60.0;
+    float delta = 0.0;
 
-  delay(1000);
+    float hours_angle = hours / 12.0 * 360.0;
+    float mins_angle = mins / 60.0 * 360.0;
 
+    while (hours_angle >= 360) hours_angle -= 360;
+    while (mins_angle >= 360) mins_angle -= 360;
 
-  delta = pupilMotor.goto_angle(0);
-  Serial.println(delta);
-  Serial.print(pupilMotor.debug());
+    // Serial.println(
+    //   "hours_angle:" + String(hours_angle) + ", mins_angle:" + String(mins_angle));
 
-  Serial.print(glintMotor.debug("pre adjust"));
-  glintMotor.adjust_angle(180);
-  glintMotor.adjust_angle(-delta * adjustment_per_degree);
+    pupilMotor.wake();
+    delta = pupilMotor.goto_angle(hours_angle);
+    pupilMotor.sleep();
 
-  Serial.print(glintMotor.debug("post adjust"));
+    glintMotor.adjust_angle(delta - delta * adjustment_per_degree);
+    glintMotor.wake();
+    glintMotor.goto_angle(mins_angle);
+    glintMotor.sleep();
 
-  glintMotor.goto_angle(0);
-  Serial.print(glintMotor.debug("post goto"));
-
-  delay(1000);
-
-
-
-  pupilMotor.sleep();
-  glintMotor.sleep();
+    delay(1000);
+  }
 }
 
 
 void loop() {
-  // When we have reached the end power down
-  // if (
-  //   !pupilStepper.isRunning()
-  //   && !glintStepper.isRunning()) {
-  //   pupilStepper.disableOutputs();
-  //   glintStepper.disableOutputs();
-  // }
+  pupilMotor.sleep();
+  glintMotor.sleep();
+
+  delay(1000);
 }
