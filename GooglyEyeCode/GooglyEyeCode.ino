@@ -10,7 +10,8 @@ Motor pupilMotor(
   pupilStepperPin3,
   pupilStepperPin4,
   pupilLightGatePin,
-  false);
+  false,
+  true);
 
 Motor glintMotor(
   "Glint",
@@ -19,11 +20,13 @@ Motor glintMotor(
   glintStepperPin3,
   glintStepperPin4,
   glintHallEffectPin,
-  true);
+  true,
+  false);
 
 void setup() {
   Serial.begin(115200);
   Serial.print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  Serial.print("Starting\n\n");
 
   pupilMotor.calibrate();
   glintMotor.calibrate();
@@ -65,7 +68,7 @@ void setup() {
     glintMotor.goto_angle(mins_angle);
     glintMotor.sleep();
 
-     delay(58000);
+    delay(58000);
   }
 }
 

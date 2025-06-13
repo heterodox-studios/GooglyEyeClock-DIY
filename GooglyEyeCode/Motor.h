@@ -19,14 +19,15 @@ public:
     int pin3,
     int pin4,
     int homeSensorPin,
-    bool reverse_direction = false) {
+    bool reverse_direction = false,
+    bool homeSensorHomeState = true) {
     _name = name;
     _pin1 = pin1;
     _pin2 = pin2;
     _pin3 = pin3;
     _pin4 = pin4;
     _homeSensorPin = homeSensorPin;
-
+    _homeSensorHomeState = homeSensorHomeState;
     /*
     For the 28BYJ-48 stepper motor, the wiring by default is as follows:
     - IN1   Blue    B- 
@@ -234,9 +235,12 @@ private:
   int _pin2;
   int _pin3;
   int _pin4;
+
   int _homeSensorPin;
+  bool _homeSensorHomeState;
+
   bool _home_detected() {
-    return !digitalRead(_homeSensorPin);
+    return digitalRead(_homeSensorPin) == _homeSensorHomeState;
   };
 
   float _current_angle;
