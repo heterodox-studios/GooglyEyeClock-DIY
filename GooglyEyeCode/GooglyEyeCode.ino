@@ -10,7 +10,7 @@ Motor pupilMotor(
   pupilStepperPin3,
   pupilStepperPin4,
   pupilLightGatePin,
-  true);
+  false);
 
 Motor glintMotor(
   "Glint",
@@ -38,7 +38,7 @@ void setup() {
   pupilMotor.slow_mode();
   glintMotor.slow_mode();
 
-  for (int sec = 0; sec <= 12 * 60 * 3600; sec++) {
+  for (int sec = 0; sec <= 1 * 12 * 60 * 60; sec++) {
 
     if (sec % 60 != 0)
       continue;
@@ -65,7 +65,7 @@ void setup() {
     glintMotor.goto_angle(mins_angle);
     glintMotor.sleep();
 
-    delay(1000);
+     delay(58000);
   }
 }
 
