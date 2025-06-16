@@ -22,39 +22,43 @@ public:
     bool reverse_direction = false,
     bool homeSensorHomeState = true) {
     _name = name;
-    _pin1 = pin1;
-    _pin2 = pin2;
-    _pin3 = pin3;
-    _pin4 = pin4;
     _homeSensorPin = homeSensorPin;
     _homeSensorHomeState = homeSensorHomeState;
-    /*
-    For the 28BYJ-48 stepper motor, the wiring by default is as follows:
-    - IN1   Blue    B- 
-    - IN2   Pink    A+
-    - IN3   Yellow  B+
-    - IN4   Orange  A-
-    - Vmot  Red
-    
-    So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
 
-    To reverse use A-, A+, B+, B- == 4, 2, 3, 1  */
+    /*
+      For the 28BYJ-48 stepper motor, the wiring by default is as follows:
+      - IN1   Blue    B- 
+      - IN2   Pink    A+
+      - IN3   Yellow  B+
+      - IN4   Orange  A-
+      - Vmot  Red
+    
+      So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
+
+      To reverse use A-, A+, B+, B- == 4, 2, 3, 1 
+    */
 
     if (reverse_direction) {
-      _stepper = AccelStepper(
-        AccelStepper::HALF4WIRE,
-        _pin4,
-        _pin2,
-        _pin3,
-        _pin1);
+      _pin1 = pin4;
+      _pin2 = pin3;
+      _pin3 = pin2;
+      _pin4 = pin1;
     } else {
-      _stepper = AccelStepper(
-        AccelStepper::HALF4WIRE,
-        _pin1,
-        _pin3,
-        _pin2,
-        _pin4);
+      _pin1 = pin1;
+      _pin2 = pin2;
+      _pin3 = pin3;
+      _pin4 = pin4;
     }
+  };
+
+  void setup() {
+
+    _stepper = AccelStepper(
+      AccelStepper::HALF4WIRE,
+      _pin1,
+      _pin3,
+      _pin2,
+      _pin4);
 
 
     fast_mode();
@@ -67,6 +71,8 @@ public:
     _steps_per_rotation = 2048 * 2;  // basic value for a 28BYJ stepper
     _steps_across_home_sensor = 0;
   };
+
+
   void calibrate() {
     // rotate detecting when the home position is passed and store the steps per rotation and current angle
 
@@ -136,13 +142,13 @@ public:
     // if angle is less than current add 360, we only want to move in one direction
     while (angle < _current_angle) {
       angle += 360;
-    }    
+    }
 
     float angle_delta = angle - _current_angle;
     if (angle_delta > 5) {
       Serial.println("largish angle " + String(angle_delta));
     }
-      
+
 
 
     // Sometimes the movement of one part of clock puts us slightly ahead of where we
@@ -158,7 +164,7 @@ public:
 
     Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
 
-    if (steps_to_move < 20) { // FIXME move this to a constant
+    if (steps_to_move < 20) {  // FIXME move this to a constant
       return 0.0;
     }
 
