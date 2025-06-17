@@ -44,9 +44,6 @@ public:
       true,
       false);
 
-    _pupilMotor.setup();
-    _glintMotor.setup();
-
     calibrate();
 
     Serial.println("Setting slow mode for motors...");
@@ -80,6 +77,7 @@ public:
     _glintMotor.goto_angle(mins_angle);
     _glintMotor.sleep();
   };
+
   void calibrate() {
     Serial.println("Calibrating full rotations...");
     _pupilMotor.calibrate();
@@ -91,6 +89,9 @@ public:
     delta = _pupilMotor.goto_angle(360);
     float drift_angle_360 = _glintMotor.measure_angle_to_home();
     _adjustment_per_degree = drift_angle_360 / 360;
+
+    Serial.println(_pupilMotor.debug());
+    Serial.println(_glintMotor.debug());
   };
 
 private:

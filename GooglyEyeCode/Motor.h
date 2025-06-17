@@ -52,10 +52,7 @@ public:
       _pin3 = pin3;
       _pin4 = pin4;
     }
-  };
-
-  void setup() {
-
+ 
     _stepper = AccelStepper(
       AccelStepper::HALF4WIRE,
       _pin1,
@@ -134,8 +131,8 @@ public:
 
     _current_angle = 0;
 
-    Serial.print("Angle to home: ");
-    Serial.println(angle);
+    // Serial.print("Angle to home: ");
+    // Serial.println(angle);
 
     return angle;
   };
@@ -148,28 +145,28 @@ public:
     }
 
     float angle_delta = angle - _current_angle;
-    if (angle_delta > 5) {
-      Serial.println("largish angle " + String(angle_delta));
-    }
+    // if (angle_delta > 5) {
+    //   Serial.println("largish angle " + String(angle_delta));
+    // }
 
 
 
     // Sometimes the movement of one part of clock puts us slightly ahead of where we
     // should be. Instead of doing a full loop just wait for the angle wanted to catch
     // up with us
-    if (angle_delta > 355.0) {
-      Serial.println("Skipping movement for angle " + String(angle_delta));
-      return 0.0;
-    }
+    // if (angle_delta > 355.0) {
+    //   Serial.println("Skipping movement for angle " + String(angle_delta));
+    //   return 0.0;
+    // }
 
     // calculate the number of steps to move
     int steps_to_move = round(angle_delta / 360.0 * _steps_per_rotation);
 
-    Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
+    // Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
 
-    if (steps_to_move < 20) {  // FIXME move this to a constant
-      return 0.0;
-    }
+    // if (steps_to_move < 20) {  // FIXME move this to a constant
+    //   return 0.0;
+    // }
 
     // move to the target position
     _stepper.move(steps_to_move);
