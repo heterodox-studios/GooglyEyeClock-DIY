@@ -16,11 +16,12 @@ void setup() {
   Serial.println("Starting setup");
 
   display.setup();
+  timekeeper.setup();
 }
 
 
 void loop() {
   display.displayTime(timekeeper.hours(), timekeeper.mins());
 
-  delay(60 * 1000);
+  delay(10 * 1000);
 }
