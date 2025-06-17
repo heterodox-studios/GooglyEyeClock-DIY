@@ -2,9 +2,10 @@
 #include "Arduino.h"
 #include "local_config.h"
 #include "Display.h"
+#include "Timekeeper.h"
 
 Display display;
-
+Timekeeper timekeeper;
 
 void setup() {
 
@@ -13,14 +14,13 @@ void setup() {
 
   Serial.println("------------------------------------");
   Serial.println("Starting setup");
+
   display.setup();
 }
 
 
 void loop() {
-  display.displayTime(3, 15);
-  display.displayTime(6, 30);
-  display.displayTime(9, 45);
-  display.displayTime(0, 0);
-  delay(1000000);
+  display.displayTime(timekeeper.hours(), timekeeper.mins());
+
+  delay(60 * 1000);
 }
