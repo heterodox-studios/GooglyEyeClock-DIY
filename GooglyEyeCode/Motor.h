@@ -1,6 +1,6 @@
 /*
 
-  Abstarction of the basic motor functions.
+  Abstraction of the basic motor functions.
 
 */
 
@@ -12,6 +12,9 @@
 
 class Motor {
 public:
+
+  Motor(){};
+
   Motor(
     String name,
     int pin1,
