@@ -44,7 +44,25 @@ public:
       true,
       false);
 
-    calibrate();
+    // For faster startup let's use values we captured earlier
+    if (true) {
+
+      _pupilMotor._steps_per_rotation = 14275;
+      _pupilMotor._steps_across_home_sensor = 192;
+
+      _glintMotor._steps_per_rotation = 21896;
+      _glintMotor._steps_across_home_sensor = 528;
+
+      _adjustment_per_degree = 0.2;
+
+      // go to noon position
+      _pupilMotor.findNoon();
+      _glintMotor.findNoon();
+
+    } else {
+      calibrate();
+    }
+
 
     Serial.println("Setting slow mode for motors...");
     _pupilMotor.slow_mode();
@@ -81,7 +99,10 @@ public:
   void calibrate() {
     Serial.println("Calibrating full rotations...");
     _pupilMotor.calibrate();
+    Serial.println(_pupilMotor.debug());
+
     _glintMotor.calibrate();
+    Serial.println(_glintMotor.debug());
 
     Serial.println("Calibrating drift of glint when pupil rotates...");
     float delta = 0;
@@ -90,8 +111,8 @@ public:
     float drift_angle_360 = _glintMotor.measure_angle_to_home();
     _adjustment_per_degree = drift_angle_360 / 360;
 
-    Serial.println(_pupilMotor.debug());
-    Serial.println(_glintMotor.debug());
+    Serial.print("_adjustment_per_degree: ");
+    Serial.println(_adjustment_per_degree);
   };
 
 private:

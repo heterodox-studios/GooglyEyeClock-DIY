@@ -52,7 +52,7 @@ public:
       _pin3 = pin3;
       _pin4 = pin4;
     }
- 
+
     _stepper = AccelStepper(
       AccelStepper::HALF4WIRE,
       _pin1,
@@ -116,7 +116,22 @@ public:
   float measure_angle_to_home() {
     long starting_position = _stepper.currentPosition();
 
-    _stepper.moveTo(starting_position + _steps_per_rotation * 100);  // 100 revolutions of motor
+    findNoon();
+
+    long found_home = _stepper.currentPosition();
+    long steps_taken = found_home - starting_position;
+    float angle = steps_taken * (360.0 / _steps_per_rotation);
+
+
+    // Serial.print("Angle to home: ");
+    // Serial.println(angle);
+
+    return angle;
+  };
+
+  void findNoon() {
+    // go to the noon position by rotating until the sensor triggers and then continuing half the sensor distance.
+    _stepper.move(_steps_per_rotation * 100);  // 100 revolutions of motor
 
     while (!_home_detected())
       _stepper.run();
@@ -124,17 +139,7 @@ public:
     _stepper.move(_steps_across_home_sensor / 2);
     while (_stepper.run()) 1;
 
-
-    long found_home = _stepper.currentPosition();
-    long steps_taken = found_home - starting_position;
-    float angle = steps_taken * (360.0 / _steps_per_rotation);
-
     _current_angle = 0;
-
-    // Serial.print("Angle to home: ");
-    // Serial.println(angle);
-
-    return angle;
   };
 
   float goto_angle(float angle) {
@@ -193,7 +198,7 @@ public:
 
   void fast_mode() {
     _stepper.setMaxSpeed(1000);
-    _stepper.setAcceleration(1000.0);
+    _stepper.setAcceleration(10000.0);
   };
 
   void slow_mode() {
@@ -234,6 +239,10 @@ public:
 
     return out;
   };
+
+  // FIXME - should be private, but made public to enable faster start up when developing
+  int _steps_per_rotation;
+  int _steps_across_home_sensor;
 private:
   AccelStepper _stepper;
   String _name;
@@ -250,9 +259,6 @@ private:
   };
 
   float _current_angle;
-
-  int _steps_per_rotation;
-  int _steps_across_home_sensor;
 };
 
 #endif
