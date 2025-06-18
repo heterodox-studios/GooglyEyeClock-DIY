@@ -10,7 +10,12 @@ Timekeeper timekeeper;
 void setup() {
 
   Serial.begin(115200);
-  while (!Serial) delay(10);  // wait for serial port to connect. Needed for native USB
+  for (int i = 0; i < 20; i++)
+    if (!Serial)
+      delay(100);  // wait for serial port to connect. Needed for native USB
+
+
+
 
   Serial.println("------------------------------------");
   Serial.println("Starting setup");
