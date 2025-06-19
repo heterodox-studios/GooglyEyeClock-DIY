@@ -86,15 +86,21 @@ public:
     // Serial.println(
     //   "hours_angle:" + String(hours_angle) + ", mins_angle:" + String(mins_angle));
 
+    // wake up motors
     _pupilMotor.wake();
-    delta = _pupilMotor.goto_angle(hours_angle);
-    _pupilMotor.sleep();
-
-    // adjustment to glint is angle moved by pupil plus the required per degree correction
-    _glintMotor.adjust_angle(delta + delta * _glint_correction_per_pupil_degree);
-
     _glintMotor.wake();
+    delay(50);
+
+    // rotate pupil first
+    delta = _pupilMotor.goto_angle(hours_angle);
+
+    // adjust glint and then rotate it
+    _glintMotor.adjust_angle(delta + delta * _glint_correction_per_pupil_degree);
     _glintMotor.goto_angle(mins_angle);
+
+    // put motors to sleep
+    delay(50);
+    _pupilMotor.sleep();
     _glintMotor.sleep();
   };
 
