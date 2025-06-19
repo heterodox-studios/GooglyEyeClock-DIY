@@ -106,7 +106,7 @@ public:
     _stepper.moveTo(overshoot_pos);
     while (_stepper.isRunning()) _stepper.run();
 
-    _stepper.moveTo(second_stop + _steps_across_home_sensor / 2);
+    _stepper.moveTo(second_stop - _steps_across_home_sensor / 2);
     while (_stepper.run()) 1;
 
     // reset the current angle with the center of home as 0
@@ -151,18 +151,19 @@ public:
 
   float goto_angle(float angle) {
 
-    while (angle < 0)
-      angle += 360.0;  // keep the angle in the range 0-360
+    // Serial.println("Desired angle after move: " + String(angle));
+    // Serial.println("Current angle before move: " + String(_current_angle));
 
-    while (angle >= 360)
-      angle -= 360.0;  // keep the angle in the range 0-360
+    // keep the angle in the range 0-360
+    while (angle < 0) angle += 360.0;
+    while (angle >= 360) angle -= 360.0;
 
     // if angle is less than current add 360, we only want to move in one direction
-    while (angle < _current_angle) {
-      angle += 360;
-    }
-
     float angle_delta = angle - _current_angle;
+    while (angle_delta < 0)
+      angle_delta += 360;
+    // Serial.println("angle_delta: " + String(angle_delta));
+
     // if (angle_delta > 5) {
     //   Serial.println("largish angle " + String(angle_delta));
     // }
@@ -176,9 +177,10 @@ public:
     }
 
     // calculate the number of steps to move
-    int steps_to_move = round(angle_delta / 360.0 * _steps_per_rotation);
-
-    // Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
+    int steps_to_move = floor(angle_delta / 360.0 * _steps_per_rotation);
+    // Serial.println("steps_to_move_" + _name + ":" + String(steps_to_move));
+    if (steps_to_move == 0)
+      return 0.0;
 
     // if (steps_to_move < 20) {  // FIXME move this to a constant
     //   return 0.0;
@@ -191,10 +193,18 @@ public:
     // update the current angle
     float degrees_per_step = 360.0 / _steps_per_rotation;
     _current_angle += steps_to_move * degrees_per_step;
+    // Serial.println("steps_to_move: " + String(steps_to_move));
+    // Serial.println("_steps_per_rotation: " + String(_steps_per_rotation));
+    // Serial.println("_current_angle += " + String( steps_to_move * degrees_per_step));
+
+
+
 
     // keep the current angle in the range 0-360
-    while (_current_angle > 360)
+    while (_current_angle >= 360)
       _current_angle -= 360.0;
+
+    // Serial.println("Current angle after move: " + String(_current_angle));
 
     return angle_delta;
   };
@@ -209,7 +219,7 @@ public:
 
   void fast_mode() {
     _stepper.setMaxSpeed(1000);
-    _stepper.setAcceleration(10000.0);
+    _stepper.setAcceleration(1000.0);
   };
 
   void slow_mode() {

@@ -12,7 +12,7 @@ void setup() {
   Serial.begin(115200);
   for (int i = 0; i < 20; i++)
     if (!Serial)
-      delay(100);  // wait for serial port to connect. Needed for native USB
+      delay(200);  // wait for serial port to connect. Needed for native USB
 
   Serial.println("------------------------------------");
   Serial.println("Starting setup");
@@ -31,6 +31,13 @@ void loop() {
   //   }
   // }
 
+  // update time every minute
   display.displayTime(timekeeper.hours(), timekeeper.mins());
   delay(1000 * 61 - timekeeper.secs());
+
+  // update time continuously
+  // Serial.println();
+  // display.displayTime(timekeeper.hours(), timekeeper.mins(), timekeeper.secs());
+
+  // delay(10 * 1000);
 }

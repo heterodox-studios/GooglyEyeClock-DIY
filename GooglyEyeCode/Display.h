@@ -68,8 +68,8 @@ public:
     // float avg_5_steps = 0.0;
     // for (int i = 1; i < 50; i++) {
     //   int steps = 0;
-    //   steps += _pupilMotor.findNoon();      
-    //   // steps += _glintMotor.findNoon();      
+    //   steps += _pupilMotor.findNoon();
+    //   // steps += _glintMotor.findNoon();
 
     //   Serial.print("noon_steps:");
     //   Serial.println(steps);
@@ -93,32 +93,33 @@ public:
     _glintMotor.slow_mode();
   };
 
-  void displayTime(int hours, int mins) {
-    Serial.println("Displaying time: " + String(hours) + ":" + String(mins));
+  void displayTime(int hours, int mins, int secs = 0) {
+    Serial.println(
+      "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
 
-
-    float delta = 0.0;
-
-    float fraction_of_hour = mins / 60.0;
-
-    float hours_angle = (hours + fraction_of_hour) / 12.0 * 360.0;
-    float mins_angle = mins / 60.0 * 360.0;
-
-    while (hours_angle >= 360) hours_angle -= 360;
+    float fractional_minutes = mins + (secs / 60.0);
+    float mins_angle = fractional_minutes / 60.0 * 360.0;
     while (mins_angle >= 360) mins_angle -= 360;
 
-    // Serial.println(
-    //   "hours_angle:" + String(hours_angle) + ", mins_angle:" + String(mins_angle));
+    float fractional_hours = hours + (fractional_minutes / 60.0);
+    float hours_angle = fractional_hours / 12.0 * 360.0;
+    while (hours_angle >= 360) hours_angle -= 360;
 
-    // wake up motors
+    // Serial.println("hours_angle:" + String(hours_angle));
+    // Serial.println("mins_angle:" + String(mins_angle));
+
+    // // wake up motors
     _pupilMotor.wake();
     _glintMotor.wake();
     delay(50);
 
+    // track how much pupil rotates so we can adjust the glint afterwards
+    float delta = 0.0;
+
     // rotate pupil first
     delta = _pupilMotor.goto_angle(hours_angle);
 
-    // adjust glint and then rotate it
+    // adjust glint and then rotate it to correct angle
     _glintMotor.adjust_angle(delta + delta * _glint_correction_per_pupil_degree);
     _glintMotor.goto_angle(mins_angle);
 
