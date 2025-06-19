@@ -45,15 +45,15 @@ public:
       false);
 
     // For faster startup let's use values we captured earlier
-    if (false) {
+    if (true) {
 
-      _pupilMotor._steps_per_rotation = 14275;
-      _pupilMotor._steps_across_home_sensor = 192;
+      _pupilMotor._steps_per_rotation = 14252;
+      _pupilMotor._steps_across_home_sensor = 188;
 
-      _glintMotor._steps_per_rotation = 21896;
-      _glintMotor._steps_across_home_sensor = 528;
+      _glintMotor._steps_per_rotation = 14818;
+      _glintMotor._steps_across_home_sensor = 370;
 
-      _glint_correction_per_pupil_degree = 0.2;
+      _glint_correction_per_pupil_degree = 0.3;
 
       // go to noon position
       _pupilMotor.findNoon();
