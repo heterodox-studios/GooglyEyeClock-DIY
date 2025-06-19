@@ -41,7 +41,7 @@ public:
       glintStepperPin3,
       glintStepperPin4,
       glintHallEffectPin,
-      true,
+      false,
       false);
 
     // For faster startup let's use values we captured earlier
