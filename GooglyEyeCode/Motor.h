@@ -144,6 +144,12 @@ public:
 
   float goto_angle(float angle) {
 
+    while (angle < 0)
+      angle += 360.0;  // keep the angle in the range 0-360
+
+    while (angle >= 360)
+      angle -= 360.0;  // keep the angle in the range 0-360
+
     // if angle is less than current add 360, we only want to move in one direction
     while (angle < _current_angle) {
       angle += 360;
@@ -153,8 +159,6 @@ public:
     // if (angle_delta > 5) {
     //   Serial.println("largish angle " + String(angle_delta));
     // }
-
-
 
     // Sometimes the movement of one part of clock puts us slightly ahead of where we
     // should be. Instead of doing a full loop just wait for the angle wanted to catch
@@ -169,9 +173,9 @@ public:
 
     // Serial.println("steps_to_take" + _name + ":" + String(steps_to_move));
 
-    if (steps_to_move < 20) {  // FIXME move this to a constant
-      return 0.0;
-    }
+    // if (steps_to_move < 20) {  // FIXME move this to a constant
+    //   return 0.0;
+    // }
 
     // move to the target position
     _stepper.move(steps_to_move);

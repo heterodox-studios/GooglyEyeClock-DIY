@@ -45,7 +45,7 @@ public:
       false);
 
     // For faster startup let's use values we captured earlier
-    if (true) {
+    if (false) {
 
       _pupilMotor._steps_per_rotation = 14275;
       _pupilMotor._steps_across_home_sensor = 192;
@@ -53,7 +53,7 @@ public:
       _glintMotor._steps_per_rotation = 21896;
       _glintMotor._steps_across_home_sensor = 528;
 
-      _adjustment_per_degree = 0.2;
+      _glint_correction_per_pupil_degree = 0.2;
 
       // go to noon position
       _pupilMotor.findNoon();
@@ -90,7 +90,9 @@ public:
     delta = _pupilMotor.goto_angle(hours_angle);
     _pupilMotor.sleep();
 
-    _glintMotor.adjust_angle(delta - delta * _adjustment_per_degree);
+    // adjustment to glint is angle moved by pupil plus the required per degree correction
+    _glintMotor.adjust_angle(delta + delta * _glint_correction_per_pupil_degree);
+
     _glintMotor.wake();
     _glintMotor.goto_angle(mins_angle);
     _glintMotor.sleep();
@@ -105,20 +107,29 @@ public:
     Serial.println(_glintMotor.debug());
 
     Serial.println("Calibrating drift of glint when pupil rotates...");
-    float delta = 0;
-    delta = _pupilMotor.goto_angle(180);
-    delta = _pupilMotor.goto_angle(360);
-    float drift_angle_360 = _glintMotor.measure_angle_to_home();
-    _adjustment_per_degree = drift_angle_360 / 360;
 
-    Serial.print("_adjustment_per_degree: ");
-    Serial.println(_adjustment_per_degree);
+    // Home both motors
+    _pupilMotor.goto_angle(0);
+    _glintMotor.goto_angle(0);
+
+    // Do one full rotation of the pupil
+    _pupilMotor.goto_angle(180);
+    _pupilMotor.goto_angle(360);
+
+    // Get adjustment angle for glint and store it sensibly
+    float glint_drift = _glintMotor.measure_angle_to_home();
+    if (glint_drift > 180)
+      glint_drift -= 360.0;  // we want the shortest path to home
+    _glint_correction_per_pupil_degree = -(glint_drift / 360.0);
+
+    Serial.print("_glint_correction_per_pupil_degree: ");
+    Serial.println(_glint_correction_per_pupil_degree);
   };
 
 private:
   Motor _pupilMotor;
   Motor _glintMotor;
-  float _adjustment_per_degree = 0.0;  // how much the glint moves per degree of pupil movement
+  float _glint_correction_per_pupil_degree = 0.0;  // how much the glint moves per degree of pupil movement
 };
 
 #endif
