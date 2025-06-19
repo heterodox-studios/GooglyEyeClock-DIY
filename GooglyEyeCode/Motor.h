@@ -129,10 +129,15 @@ public:
     return angle;
   };
 
-  void findNoon() {
-    // go to the noon position by rotating until the sensor triggers and then continuing half the sensor distance.
+  int findNoon() {
+    // go to the noon position by rotating until the sensor triggers and then continuing half the sensor distance. Returns number of steps taken to find noon.
+
+    int starting_position = _stepper.currentPosition();
+
     _stepper.move(_steps_per_rotation * 100);  // 100 revolutions of motor
 
+    // while (_home_detected())
+    //   _stepper.run();
     while (!_home_detected())
       _stepper.run();
 
@@ -140,6 +145,8 @@ public:
     while (_stepper.run()) 1;
 
     _current_angle = 0;
+
+    return _stepper.currentPosition() - starting_position;
   };
 
   float goto_angle(float angle) {

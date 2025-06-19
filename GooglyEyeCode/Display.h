@@ -63,6 +63,30 @@ public:
       calibrate();
     }
 
+    // Serial.println("looping around findnoon.");
+    // float avg_steps = 0.0;
+    // float avg_5_steps = 0.0;
+    // for (int i = 1; i < 50; i++) {
+    //   int steps = 0;
+    //   steps += _pupilMotor.findNoon();      
+    //   // steps += _glintMotor.findNoon();      
+
+    //   Serial.print("noon_steps:");
+    //   Serial.println(steps);
+
+    //   int divisor = min(i, 5);
+    //   avg_5_steps = (avg_5_steps * (divisor-1) + steps)/ divisor;
+
+    //   Serial.print("avg_5_steps:");
+    //   Serial.println(avg_5_steps);
+
+    //   avg_steps = (avg_steps * (i-1) + steps)/ i;
+
+    //   Serial.print("avg_steps:");
+    //   Serial.println(avg_steps);
+
+    //   delay(100);
+    // }
 
     Serial.println("Setting slow mode for motors...");
     _pupilMotor.slow_mode();
