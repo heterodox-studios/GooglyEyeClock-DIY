@@ -42,6 +42,11 @@ public:
     return now.minute();
   };
 
+  int secs() {
+    DateTime now = rtc.now();
+    return now.second();
+  };
+
 private:
 };
 
