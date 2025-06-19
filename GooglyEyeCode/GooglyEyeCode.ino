@@ -32,12 +32,12 @@ void loop() {
   // }
 
   // update time every minute
-  display.displayTime(timekeeper.hours(), timekeeper.mins());
-  delay(1000 * 61 - timekeeper.secs());
+  display.displayTime(timekeeper);
+  delay(1000 * (61 - timekeeper.secs()));
 
   // update time continuously
   // Serial.println();
-  // display.displayTime(timekeeper.hours(), timekeeper.mins(), timekeeper.secs());
+  // display.displayTime(timekeeper);
 
   // delay(10 * 1000);
 }

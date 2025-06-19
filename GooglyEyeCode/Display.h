@@ -16,6 +16,8 @@
 #include "Arduino.h"
 #include "Motor.h"
 #include "local_config.h"
+#include "Timekeeper.h"
+
 
 class Display {
 public:
@@ -91,6 +93,10 @@ public:
     Serial.println("Setting slow mode for motors...");
     _pupilMotor.slow_mode();
     _glintMotor.slow_mode();
+  };
+
+  void displayTime(Timekeeper now) {
+    displayTime(now.hours(), now.mins(), now.secs());
   };
 
   void displayTime(int hours, int mins, int secs = 0) {
