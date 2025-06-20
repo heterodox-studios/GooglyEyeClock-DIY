@@ -109,7 +109,7 @@ public:
     while (_stepper.isRunning())
       _stepper.run();
 
-    _stepper.moveTo(second_stop - _steps_across_home_sensor / 2);
+    _stepper.moveTo(second_stop + _steps_across_home_sensor / 2);
     while (_stepper.run())
       1;
 
