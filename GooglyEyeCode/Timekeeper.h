@@ -12,37 +12,44 @@
 
 RTC_DS3231 rtc;
 
-class Timekeeper {
+class Timekeeper
+{
 public:
+  Timekeeper() {};
 
-  Timekeeper(){};
-
-  void setup() {
+  void setup()
+  {
 
     // FIXME - what to do if there is no RTC?
-    if (!rtc.begin()) {
+    if (!rtc.begin())
+    {
       Serial.println("Couldn't find RTC");
       Serial.flush();
-      while (1) delay(10);
+      while (1)
+        delay(10);
     }
 
-    if (rtc.lostPower()) {
+    if (rtc.lostPower())
+    {
       Serial.println("RTC lost power, let's set the time!");
       rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
   };
 
-  int hours() {
+  int hours()
+  {
     DateTime now = rtc.now();
     return now.hour();
   };
 
-  int mins() {
+  int mins()
+  {
     DateTime now = rtc.now();
     return now.minute();
   };
 
-  int secs() {
+  int secs()
+  {
     DateTime now = rtc.now();
     return now.second();
   };

@@ -18,36 +18,37 @@
 #include "local_config.h"
 #include "Timekeeper.h"
 
-
-class Display {
+class Display
+{
 public:
-  Display(){};
+  Display() {};
 
-
-  void setup() {
+  void setup()
+  {
 
     _pupilMotor = Motor(
-      "Pupil",
-      pupilStepperPin1,
-      pupilStepperPin2,
-      pupilStepperPin3,
-      pupilStepperPin4,
-      pupilLightGatePin,
-      false,
-      true);
+        "Pupil",
+        pupilStepperPin1,
+        pupilStepperPin2,
+        pupilStepperPin3,
+        pupilStepperPin4,
+        pupilLightGatePin,
+        false,
+        true);
 
     _glintMotor = Motor(
-      "Glint",
-      glintStepperPin1,
-      glintStepperPin2,
-      glintStepperPin3,
-      glintStepperPin4,
-      glintHallEffectPin,
-      false,
-      false);
+        "Glint",
+        glintStepperPin1,
+        glintStepperPin2,
+        glintStepperPin3,
+        glintStepperPin4,
+        glintHallEffectPin,
+        false,
+        false);
 
     // For faster startup let's use values we captured earlier
-    if (true) {
+    if (true)
+    {
 
       _pupilMotor._steps_per_rotation = 14252;
       _pupilMotor._steps_across_home_sensor = 188;
@@ -60,8 +61,9 @@ public:
       // go to noon position
       _pupilMotor.findNoon();
       _glintMotor.findNoon();
-
-    } else {
+    }
+    else
+    {
       calibrate();
     }
 
@@ -95,21 +97,25 @@ public:
     _glintMotor.slow_mode();
   };
 
-  void displayTime(Timekeeper now) {
+  void displayTime(Timekeeper now)
+  {
     displayTime(now.hours(), now.mins(), now.secs());
   };
 
-  void displayTime(int hours, int mins, int secs = 0) {
+  void displayTime(int hours, int mins, int secs = 0)
+  {
     Serial.println(
-      "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
+        "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
 
     float fractional_minutes = mins + (secs / 60.0);
     float mins_angle = fractional_minutes / 60.0 * 360.0;
-    while (mins_angle >= 360) mins_angle -= 360;
+    while (mins_angle >= 360)
+      mins_angle -= 360;
 
     float fractional_hours = hours + (fractional_minutes / 60.0);
     float hours_angle = fractional_hours / 12.0 * 360.0;
-    while (hours_angle >= 360) hours_angle -= 360;
+    while (hours_angle >= 360)
+      hours_angle -= 360;
 
     // Serial.println("hours_angle:" + String(hours_angle));
     // Serial.println("mins_angle:" + String(mins_angle));
@@ -135,7 +141,8 @@ public:
     _glintMotor.sleep();
   };
 
-  void calibrate() {
+  void calibrate()
+  {
     Serial.println("Calibrating full rotations...");
     _pupilMotor.calibrate();
     Serial.println(_pupilMotor.debug());
@@ -156,7 +163,7 @@ public:
     // Get adjustment angle for glint and store it sensibly
     float glint_drift = _glintMotor.measure_angle_to_home();
     if (glint_drift > 180)
-      glint_drift -= 360.0;  // we want the shortest path to home
+      glint_drift -= 360.0; // we want the shortest path to home
     _glint_correction_per_pupil_degree = -(glint_drift / 360.0);
 
     Serial.print("_glint_correction_per_pupil_degree: ");
@@ -166,7 +173,7 @@ public:
 private:
   Motor _pupilMotor;
   Motor _glintMotor;
-  float _glint_correction_per_pupil_degree = 0.0;  // how much the glint moves per degree of pupil movement
+  float _glint_correction_per_pupil_degree = 0.0; // how much the glint moves per degree of pupil movement
 };
 
 #endif

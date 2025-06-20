@@ -7,12 +7,13 @@
 Display display;
 Timekeeper timekeeper;
 
-void setup() {
+void setup()
+{
 
   Serial.begin(115200);
   for (int i = 0; i < 20; i++)
     if (!Serial)
-      delay(200);  // wait for serial port to connect. Needed for native USB
+      delay(200); // wait for serial port to connect. Needed for native USB
 
   Serial.println("------------------------------------");
   Serial.println("Starting setup");
@@ -21,8 +22,8 @@ void setup() {
   timekeeper.setup();
 }
 
-
-void loop() {
+void loop()
+{
 
   // for (int hours = 0; hours <= 11; hours++) {
   //   for (int minutes = 0; minutes <= 59; minutes++) {

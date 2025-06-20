@@ -10,43 +10,47 @@
 #include "Arduino.h"
 #include <AccelStepper.h>
 
-class Motor {
+class Motor
+{
 public:
-
-  Motor(){};
+  Motor() {};
 
   Motor(
-    String name,
-    int pin1,
-    int pin2,
-    int pin3,
-    int pin4,
-    int homeSensorPin,
-    bool reverse_direction = false,
-    bool homeSensorHomeState = true) {
+      String name,
+      int pin1,
+      int pin2,
+      int pin3,
+      int pin4,
+      int homeSensorPin,
+      bool reverse_direction = false,
+      bool homeSensorHomeState = true)
+  {
     _name = name;
     _homeSensorPin = homeSensorPin;
     _homeSensorHomeState = homeSensorHomeState;
 
     /*
       For the 28BYJ-48 stepper motor, the wiring by default is as follows:
-      - IN1   Blue    B- 
+      - IN1   Blue    B-
       - IN2   Pink    A+
       - IN3   Yellow  B+
       - IN4   Orange  A-
       - Vmot  Red
-    
+
       So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
 
-      To reverse use A-, A+, B+, B- == 4, 2, 3, 1 
+      To reverse use A-, A+, B+, B- == 4, 2, 3, 1
     */
 
-    if (reverse_direction) {
+    if (reverse_direction)
+    {
       _pin1 = pin4;
       _pin2 = pin3;
       _pin3 = pin2;
       _pin4 = pin1;
-    } else {
+    }
+    else
+    {
       _pin1 = pin1;
       _pin2 = pin2;
       _pin3 = pin3;
@@ -54,12 +58,11 @@ public:
     }
 
     _stepper = AccelStepper(
-      AccelStepper::HALF4WIRE,
-      _pin1,
-      _pin3,
-      _pin2,
-      _pin4);
-
+        AccelStepper::HALF4WIRE,
+        _pin1,
+        _pin3,
+        _pin2,
+        _pin4);
 
     fast_mode();
 
@@ -68,17 +71,17 @@ public:
     _current_angle = 0;
 
     // starting values that should be corrected by calibration
-    _steps_per_rotation = 2048 * 2;  // basic value for a 28BYJ stepper
+    _steps_per_rotation = 2048 * 2; // basic value for a 28BYJ stepper
     _steps_across_home_sensor = 0;
   };
 
-
-  void calibrate() {
+  void calibrate()
+  {
     // rotate detecting when the home position is passed and store the steps per rotation and current angle
 
     // forget where we think we are and set a target a long way away
     _stepper.setCurrentPosition(0);
-    _stepper.moveTo(_steps_per_rotation * 100);  // 100 revolutions of motor
+    _stepper.moveTo(_steps_per_rotation * 100); // 100 revolutions of motor
 
     // keep going until we reach home
     while (_home_detected())
@@ -98,22 +101,24 @@ public:
     long second_stop = _stepper.currentPosition();
     _steps_per_rotation = second_stop - first_stop;
 
-
     // stop the motion and return to the center of the home position gently. Remember to overshoot so that we return in the correct direction to avoid the effects of backlash in the gearing.
     float overshoot_amount = 10.0 / 360 * _steps_per_rotation;
     float overshoot_pos = second_stop - overshoot_amount;
 
     _stepper.moveTo(overshoot_pos);
-    while (_stepper.isRunning()) _stepper.run();
+    while (_stepper.isRunning())
+      _stepper.run();
 
     _stepper.moveTo(second_stop - _steps_across_home_sensor / 2);
-    while (_stepper.run()) 1;
+    while (_stepper.run())
+      1;
 
     // reset the current angle with the center of home as 0
     _current_angle = 0;
   };
 
-  float measure_angle_to_home() {
+  float measure_angle_to_home()
+  {
     long starting_position = _stepper.currentPosition();
 
     findNoon();
@@ -122,19 +127,19 @@ public:
     long steps_taken = found_home - starting_position;
     float angle = steps_taken * (360.0 / _steps_per_rotation);
 
-
     // Serial.print("Angle to home: ");
     // Serial.println(angle);
 
     return angle;
   };
 
-  int findNoon() {
+  int findNoon()
+  {
     // go to the noon position by rotating until the sensor triggers and then continuing half the sensor distance. Returns number of steps taken to find noon.
 
     int starting_position = _stepper.currentPosition();
 
-    _stepper.move(_steps_per_rotation * 100);  // 100 revolutions of motor
+    _stepper.move(_steps_per_rotation * 100); // 100 revolutions of motor
 
     // while (_home_detected())
     //   _stepper.run();
@@ -142,21 +147,25 @@ public:
       _stepper.run();
 
     _stepper.move(_steps_across_home_sensor / 2);
-    while (_stepper.run()) 1;
+    while (_stepper.run())
+      1;
 
     _current_angle = 0;
 
     return _stepper.currentPosition() - starting_position;
   };
 
-  float goto_angle(float angle) {
+  float goto_angle(float angle)
+  {
 
     // Serial.println("Desired angle after move: " + String(angle));
     // Serial.println("Current angle before move: " + String(_current_angle));
 
     // keep the angle in the range 0-360
-    while (angle < 0) angle += 360.0;
-    while (angle >= 360) angle -= 360.0;
+    while (angle < 0)
+      angle += 360.0;
+    while (angle >= 360)
+      angle -= 360.0;
 
     // if angle is less than current add 360, we only want to move in one direction
     float angle_delta = angle - _current_angle;
@@ -171,7 +180,8 @@ public:
     // Sometimes the movement of one part of clock puts us slightly ahead of where we
     // should be. Instead of doing a full loop just wait for the angle wanted to catch
     // up with us
-    if (angle_delta > 358.0) {
+    if (angle_delta > 358.0)
+    {
       Serial.println("Skipping movement for angle " + String(angle_delta));
       return 0.0;
     }
@@ -188,7 +198,8 @@ public:
 
     // move to the target position
     _stepper.move(steps_to_move);
-    while (_stepper.run()) 1;
+    while (_stepper.run())
+      1;
 
     // update the current angle
     float degrees_per_step = 360.0 / _steps_per_rotation;
@@ -196,9 +207,6 @@ public:
     // Serial.println("steps_to_move: " + String(steps_to_move));
     // Serial.println("_steps_per_rotation: " + String(_steps_per_rotation));
     // Serial.println("_current_angle += " + String( steps_to_move * degrees_per_step));
-
-
-
 
     // keep the current angle in the range 0-360
     while (_current_angle >= 360)
@@ -209,33 +217,38 @@ public:
     return angle_delta;
   };
 
-
-  void adjust_angle(float angle) {
+  void adjust_angle(float angle)
+  {
     _current_angle += angle;
 
     while (_current_angle >= 360)
       _current_angle -= 360.0;
   };
 
-  void fast_mode() {
+  void fast_mode()
+  {
     _stepper.setMaxSpeed(1000);
     _stepper.setAcceleration(1000.0);
   };
 
-  void slow_mode() {
+  void slow_mode()
+  {
     _stepper.setMaxSpeed(1000);
     _stepper.setAcceleration(200.0);
   };
 
-  void sleep() {
+  void sleep()
+  {
     _stepper.disableOutputs();
   };
 
-  void wake() {
+  void wake()
+  {
     _stepper.enableOutputs();
   };
 
-  String debug(String note = "") {
+  String debug(String note = "")
+  {
     String out = "";
 
     out += "#### " + _name + " - " + note + " ####\n";
@@ -264,6 +277,7 @@ public:
   // FIXME - should be private, but made public to enable faster start up when developing
   int _steps_per_rotation;
   int _steps_across_home_sensor;
+
 private:
   AccelStepper _stepper;
   String _name;
@@ -275,7 +289,8 @@ private:
   int _homeSensorPin;
   bool _homeSensorHomeState;
 
-  bool _home_detected() {
+  bool _home_detected()
+  {
     return digitalRead(_homeSensorPin) == _homeSensorHomeState;
   };
 
