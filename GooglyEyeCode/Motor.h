@@ -135,13 +135,13 @@ public:
 
     if (_autoCalibrationEnabled == false)
     {
-      Serial.println("Auto calibration is disabled, skipping ISR handling.");
+      // Serial.println("Auto calibration is disabled, skipping ISR handling.");
       return;
     }
 
     if (!_autoCalibrateIsMovementSane(current_position))
     {
-      Serial.println("Auto calibration sanity check failed, skipping ISR handling.");
+      // Serial.println("Auto calibration sanity check failed, skipping ISR handling.");
       return;
     }
 
@@ -169,12 +169,12 @@ public:
     // no movement or backwards or too small to be realistic
     if (current_position <= recent_calibration_position)
     {
-      Serial.println("No movement or backwards - skipping calibration.");
+      // Serial.println("No movement or backwards - skipping calibration.");
       return false;
     }
     if (abs(current_position - recent_calibration_position) < 10)
     {
-      Serial.println("Movement too small to be realistic - skipping calibration.");
+      // Serial.println("Movement too small to be realistic - skipping calibration.");
       return false;
     }
 
@@ -197,7 +197,7 @@ public:
     // case A and case B
     if (!last_entering_position)
     {
-      Serial.println("Case A or B: skipping calibration.");
+      // Serial.println("Case A or B: skipping calibration.");
       return;
     }
 
@@ -206,7 +206,7 @@ public:
     {
       _stepsPerRotation = current_position - last_entering_position;
       _stepsPerRotationHasBeenCalibrated = true;
-      Serial.println("Case C: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
+      // Serial.println("Case C: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
     }
 
     // if we have calibrated both steps across home and steps per rotation, we
@@ -221,7 +221,7 @@ public:
         angle_adjustment -= 360.0;
 
       Serial.println(
-          "Calibrating angle from " + String(_current_angle) + " to " + String(angleAtEntryToHome) + " - delta of " + String(angle_adjustment));
+          "Calibrating " + String(_name) + " angle from " + String(_current_angle) + " to " + String(angleAtEntryToHome) + " - delta of " + String(angle_adjustment));
 
       _current_angle = angleAtEntryToHome;
     }
@@ -244,7 +244,7 @@ public:
     // case D
     if (!_previous_entering_home)
     {
-      Serial.println("Case D: skipping calibration.");
+      // Serial.println("Case D: skipping calibration.");
       return;
     }
 
@@ -253,7 +253,7 @@ public:
     {
       _stepsAcrossHome = current_position - _previous_entering_home;
       _stepsAcrossHomeHasBeenCalibrated = true;
-      Serial.println("Case E: calibrated _stepsAcrossHome to " + String(_stepsAcrossHome));
+      // Serial.println("Case E: calibrated _stepsAcrossHome to " + String(_stepsAcrossHome));
     }
 
     // case F
@@ -261,7 +261,7 @@ public:
     {
       _stepsPerRotation = current_position - last_leaving_position;
       _stepsPerRotationHasBeenCalibrated = true;
-      Serial.println("Case F: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
+      // Serial.println("Case F: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
     }
   };
 
@@ -375,7 +375,7 @@ public:
         angle_delta += 360.0;
     }
 
-    Serial.println("angle_delta: " + String(angle_delta));
+    // Serial.println("angle_delta: " + String(angle_delta));
 
     // if (angle_delta > 5) {
     //   Serial.println("largish angle " + String(angle_delta));
@@ -384,7 +384,7 @@ public:
     // calculate the number of steps to move
     float degrees_per_step = 360.0 / _stepsPerRotation;
     int steps_to_move = floor(angle_delta / 360.0 * _stepsPerRotation);
-    Serial.println("steps_to_move_" + _name + ": " + String(steps_to_move));
+    // Serial.println("steps_to_move_" + _name + ": " + String(steps_to_move));
     if (steps_to_move == 0)
       return 0.0;
 
