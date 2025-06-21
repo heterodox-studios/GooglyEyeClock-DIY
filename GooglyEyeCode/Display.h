@@ -26,58 +26,12 @@ public:
 
   void setup()
   {
-
     Serial.println("Setting up display...");
     _pupilMotor = PupilMotor();
     _glintMotor = GlintMotor();
 
-    // For faster startup let's use values we captured earlier
-    if (true)
-    {
+    calibrate();
 
-      _pupilMotor._steps_per_rotation = 14252;
-      _pupilMotor._steps_across_home_sensor = 188;
-
-      _glintMotor._steps_per_rotation = 14818;
-      _glintMotor._steps_across_home_sensor = 370;
-
-      _glint_correction_per_pupil_degree = 0.3;
-
-      // go to noon position
-      _pupilMotor.findNoon();
-      _glintMotor.findNoon();
-    }
-    else
-    {
-      calibrate();
-    }
-
-    // Serial.println("looping around findnoon.");
-    // float avg_steps = 0.0;
-    // float avg_5_steps = 0.0;
-    // for (int i = 1; i < 50; i++) {
-    //   int steps = 0;
-    //   steps += _pupilMotor.findNoon();
-    //   // steps += _glintMotor.findNoon();
-
-    //   Serial.print("noon_steps:");
-    //   Serial.println(steps);
-
-    //   int divisor = min(i, 5);
-    //   avg_5_steps = (avg_5_steps * (divisor-1) + steps)/ divisor;
-
-    //   Serial.print("avg_5_steps:");
-    //   Serial.println(avg_5_steps);
-
-    //   avg_steps = (avg_steps * (i-1) + steps)/ i;
-
-    //   Serial.print("avg_steps:");
-    //   Serial.println(avg_steps);
-
-    //   delay(100);
-    // }
-
-    Serial.println("Setting slow mode for motors...");
     _pupilMotor.slow_mode();
     _glintMotor.slow_mode();
   };
@@ -94,6 +48,7 @@ public:
 
     float fractional_minutes = mins + (secs / 60.0);
     float mins_angle = fractional_minutes / 60.0 * 360.0;
+
     while (mins_angle >= 360)
       mins_angle -= 360;
 
@@ -111,14 +66,13 @@ public:
     delay(50);
 
     // track how much pupil rotates so we can adjust the glint afterwards
-    float delta = 0.0;
+    float delta = _pupilMotor.gotoAngleClockwise(hours_angle);
 
-    // rotate pupil first
-    delta = _pupilMotor.goto_angle(hours_angle);
+    // adjust the angle glint thinks it is at
+    _glintMotor.adjust_angle(delta);
+    _glintMotor.adjust_angle(delta * _glint_correction_per_pupil_degree);
 
-    // adjust glint and then rotate it to correct angle
-    _glintMotor.adjust_angle(delta + delta * _glint_correction_per_pupil_degree);
-    _glintMotor.goto_angle(mins_angle);
+    _glintMotor.gotoAngleClockwise(mins_angle);
 
     // put motors to sleep
     delay(50);
@@ -128,22 +82,34 @@ public:
 
   void calibrate()
   {
+    calibrateMotors();
+    calibrateGlintDrift();
+  }
+
+  void calibrateMotors()
+  {
     Serial.println("Calibrating full rotations...");
-    _pupilMotor.calibrate();
-    Serial.println(_pupilMotor.debug());
+    _pupilMotor.disableAutoCalibration();
+    _glintMotor.disableAutoCalibration();
 
-    _glintMotor.calibrate();
-    Serial.println(_glintMotor.debug());
+    Serial.println("Calibrating pupil motor...");
+    _pupilMotor.calibrateUsingInterupts();
+    _pupilMotor.gotoAngleDirect(0);
+    // Serial.println(_pupilMotor.debug());
 
+    Serial.println("Calibrating glint motor...");
+    _glintMotor.calibrateUsingInterupts();
+  }
+
+  void calibrateGlintDrift()
+  {
     Serial.println("Calibrating drift of glint when pupil rotates...");
-
-    // Home both motors
-    _pupilMotor.goto_angle(0);
-    _glintMotor.goto_angle(0);
+    _pupilMotor.gotoAngleDirect(0);
+    _glintMotor.gotoAngleDirect(0);
 
     // Do one full rotation of the pupil
-    _pupilMotor.goto_angle(180);
-    _pupilMotor.goto_angle(360);
+    _pupilMotor.gotoAngleClockwise(180);
+    _pupilMotor.gotoAngleClockwise(360);
 
     // Get adjustment angle for glint and store it sensibly
     float glint_drift = _glintMotor.measure_angle_to_home();
@@ -154,6 +120,18 @@ public:
     Serial.print("_glint_correction_per_pupil_degree: ");
     Serial.println(_glint_correction_per_pupil_degree);
   };
+
+  void passOnPupilISR(bool state)
+  {
+    // Serial.println("passOnPupilISR received ISR with state: " + String(state));
+    _pupilMotor.autoCalibrateFromInterupt(state);
+  }
+
+  void passOnGlintISR(bool state)
+  {
+    // Serial.println("passOnGlintISR received ISR with state: " + String(state));
+    _glintMotor.autoCalibrateFromInterupt(state);
+  }
 
 private:
   Motor _pupilMotor;

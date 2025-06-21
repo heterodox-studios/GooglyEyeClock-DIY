@@ -7,6 +7,9 @@
 Display display;
 Timekeeper timekeeper;
 
+volatile bool pupilLightGateLastSeenState = LOW;
+volatile bool glintHallEffectLastSeenState = LOW;
+
 void setup()
 {
 
@@ -15,7 +18,7 @@ void setup()
     if (!Serial)
       delay(200); // wait for serial port to connect. Needed for native USB
 
-  // setup_interupts();
+  setup_interupts();
 
   delay(5000); // wait for serial monitor to open
 
@@ -27,46 +30,58 @@ void setup()
   timekeeper.setup();
 }
 
-// void setup_interupts()
-// {
-// // attach interrupt to pupil sensor
-// pinMode(pupilLightGatePin, INPUT_PULLUP);
-// attachInterrupt(
-//     digitalPinToInterrupt(pupilLightGatePin),
-//     lightGateISR,
-//     CHANGE);
+void setup_interupts()
+{
+  // attach interrupt to pupil sensor
+  pinMode(pupilLightGatePin, INPUT_PULLUP);
+  pupilLightGateLastSeenState = digitalRead(pupilLightGatePin);
+  attachInterrupt(
+      digitalPinToInterrupt(pupilLightGatePin),
+      lightGateISR,
+      CHANGE);
 
-//   pinMode(glintHallEffectPin, INPUT_PULLUP);
-//   attachInterrupt(
-//       digitalPinToInterrupt(glintHallEffectPin),
-//       glintHallEffectISR,
-//       CHANGE);
-// }
+  pinMode(glintHallEffectPin, INPUT_PULLUP);
+  glintHallEffectLastSeenState = digitalRead(glintHallEffectPin);
+  attachInterrupt(
+      digitalPinToInterrupt(glintHallEffectPin),
+      glintHallEffectISR,
+      CHANGE);
+}
 
-// volatile bool pupilLightGateLastSeenState = LOW;
-// void lightGateISR()
-// {
-//   bool state = digitalRead(pupilLightGatePin);
-//   if (state != pupilLightGateLastSeenState)
-//   {
-//     pupilLightGateLastSeenState = state;
-//     // Serial.println("pupilLightGateISR triggered: " + String(state));
-//   }
-// }
+void lightGateISR()
+{
+  bool state = digitalRead(pupilLightGatePin);
+  if (state != pupilLightGateLastSeenState)
+  {
+    pupilLightGateLastSeenState = state;
+    // Serial.println("pupilLightGateISR triggered: " + String(state));
+    display.passOnPupilISR(state);
+  }
+}
 
-// volatile bool glintHallEffectLastSeenState = LOW;
-// void glintHallEffectISR()
-// {
-//   bool state = digitalRead(glintHallEffectPin);
-//   if (state != glintHallEffectLastSeenState)
-//   {
-//     glintHallEffectLastSeenState = state;
-//     // Serial.println("glintHallEffectISR triggered: " + String(state));
-//   }
-// }
+void glintHallEffectISR()
+{
+  // ignore hall sensor if pupil light gate is not triggered
+  if (!pupilLightGateLastSeenState == HIGH)
+  {
+    Serial.println("glintHallEffectISR ignored because pupil light gate is not triggered.");
+    return;
+  }
+
+  bool state = !digitalRead(glintHallEffectPin);
+  if (state != glintHallEffectLastSeenState)
+  {
+    glintHallEffectLastSeenState = state;
+    // Serial.println("glintHallEffectISR triggered: " + String(state));
+    display.passOnGlintISR(state);
+  }
+}
 
 void loop()
 {
+
+  display.displayTime(0, 0);
+  delay(10000);
 
   // swing_past_possible_hall_sensor_trigger_times();
   // monitor_interrupts();
@@ -79,22 +94,22 @@ void loop()
   // }
 
   // Display current time every minute
-  // display.displayTime(timekeeper);
+  display.displayTime(timekeeper);
 
   // Wait until the next minute change
-  // delay(1000 * (60 - timekeeper.secs()));
+  delay(1000 * (60 - timekeeper.secs()));
 
   // Advance one minute on display every second
-  int minutes = 0;
-  int advancePerIteration = 5; // how many minutes to advance per iteration
-  while (1)
-  {
-    display.displayTime(
-        (minutes / 60) % 12,
-        minutes % 60);
-    delay(1000);
-    minutes += advancePerIteration;
-  }
+  // int minutes = 0;
+  // int advancePerIteration = 60; // how many minutes to advance per iteration
+  // while (1)
+  // {
+  //   display.displayTime(
+  //       (minutes / 60) % 12,
+  //       minutes % 60);
+  //   delay(1000);
+  //   minutes += advancePerIteration;
+  // }
 }
 
 // void swing_past_possible_hall_sensor_trigger_times()
