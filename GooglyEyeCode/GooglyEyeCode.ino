@@ -84,7 +84,6 @@ void loop()
   delay(10000);
 
   // swing_past_possible_hall_sensor_trigger_times();
-  // monitor_interrupts();
 
   // for (int hours = 0; hours <= 11; hours++) {
   //   for (int minutes = 0; minutes <= 59; minutes++) {
@@ -152,31 +151,4 @@ void loop()
 
 //   // display.displayTime(0, 0);
 //   // delay(5000);
-// }
-
-// void monitor_interrupts()
-// {
-//   display.displayTime(6, 0);
-
-//   Serial.println("");
-
-//   Serial.println("Monitoring interrupts...");
-
-//   bool pupil_before = pupilLightGateLastSeenState;
-//   bool glint_before = glintHallEffectLastSeenState;
-
-//   while (1)
-//   {
-//     if (pupil_before != pupilLightGateLastSeenState)
-//     {
-//       Serial.println("Pupil light gate changed to " + String(pupilLightGateLastSeenState));
-//       pupil_before = pupilLightGateLastSeenState;
-//     }
-
-//     if (glint_before != glintHallEffectLastSeenState)
-//     {
-//       Serial.println("Glint hall effect changed to " + String(glintHallEffectLastSeenState));
-//       glint_before = glintHallEffectLastSeenState;
-//     }
-//   }
 // }
