@@ -227,13 +227,13 @@ public:
 
   void fast_mode()
   {
-    _stepper.setMaxSpeed(1000);
+    _stepper.setMaxSpeed(800);
     _stepper.setAcceleration(1000.0);
   };
 
   void slow_mode()
   {
-    _stepper.setMaxSpeed(1000);
+    _stepper.setMaxSpeed(800);
     _stepper.setAcceleration(200.0);
   };
 
