@@ -15,8 +15,11 @@ void setup()
     if (!Serial)
       delay(200); // wait for serial port to connect. Needed for native USB
 
+  delay(5000); // wait for serial monitor to open
+
   Serial.println("------------------------------------");
   Serial.println("Starting setup");
+  Serial.flush();
 
   display.setup();
   timekeeper.setup();
