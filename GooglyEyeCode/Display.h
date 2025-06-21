@@ -14,7 +14,8 @@
 #define Display_h
 
 #include "Arduino.h"
-#include "Motor.h"
+#include "PupilMotor.h"
+#include "GlintMotor.h"
 #include "local_config.h"
 #include "Timekeeper.h"
 
@@ -26,25 +27,9 @@ public:
   void setup()
   {
 
-    _pupilMotor = Motor(
-        "Pupil",
-        pupilStepperPin1,
-        pupilStepperPin2,
-        pupilStepperPin3,
-        pupilStepperPin4,
-        pupilLightGatePin,
-        false,
-        true);
-
-    _glintMotor = Motor(
-        "Glint",
-        glintStepperPin1,
-        glintStepperPin2,
-        glintStepperPin3,
-        glintStepperPin4,
-        glintHallEffectPin,
-        false,
-        false);
+    Serial.println("Setting up display...");
+    _pupilMotor = PupilMotor();
+    _glintMotor = GlintMotor();
 
     // For faster startup let's use values we captured earlier
     if (true)
@@ -104,8 +89,8 @@ public:
 
   void displayTime(int hours, int mins, int secs = 0)
   {
-    Serial.println(
-        "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
+    // Serial.println(
+    //     "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
 
     float fractional_minutes = mins + (secs / 60.0);
     float mins_angle = fractional_minutes / 60.0 * 360.0;
