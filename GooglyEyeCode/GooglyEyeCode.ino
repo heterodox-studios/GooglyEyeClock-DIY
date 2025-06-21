@@ -80,8 +80,8 @@ void glintHallEffectISR()
 void loop()
 {
 
-  display.displayTime(0, 0);
-  delay(10000);
+  // display.displayTime(0, 0);
+  // delay(10000);
 
   // swing_past_possible_hall_sensor_trigger_times();
 
@@ -93,23 +93,39 @@ void loop()
   // }
 
   // Display current time every minute
-  display.displayTime(timekeeper);
+  // display.displayTime(timekeeper);
 
   // Wait until the next minute change
-  delay(1000 * (60 - timekeeper.secs()));
+  // delay(1000 * (60 - timekeeper.secs()));
 
-  // Advance one minute on display every second
-  // int minutes = 0;
-  // int advancePerIteration = 60; // how many minutes to advance per iteration
-  // while (1)
-  // {
-  //   display.displayTime(
-  //       (minutes / 60) % 12,
-  //       minutes % 60);
-  //   delay(1000);
-  //   minutes += advancePerIteration;
-  // }
+  // QuickTime(60);
+
+  while (1)
+  {
+    // Display current time every second
+    display.displayTime(0, 0);
+    delay(1000);
+    display.displayTime(0, 0);
+    delay(1000);
+    display.displayTime(6, 0);
+    delay(1000);
+  }
 }
+
+void QuickTime(int advancePerIteration)
+{
+  // Advance one minute on display every second
+  int minutes = 0;
+  while (1)
+  {
+    display.displayTime(
+        (minutes / 60) % 12,
+        minutes % 60);
+    delay(1000);
+    minutes += advancePerIteration;
+  }
+}
+// This function is for testing purposes to swing the display past all possible
 
 // void swing_past_possible_hall_sensor_trigger_times()
 // {

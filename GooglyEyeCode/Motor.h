@@ -10,6 +10,15 @@
 #include "Arduino.h"
 #include <AccelStepper.h>
 
+float normalizeAngle(float angle)
+{
+  while (angle < 0)
+    angle += 360.0;
+  while (angle >= 360)
+    angle -= 360.0;
+  return angle;
+}
+
 class Motor
 {
 public:
@@ -86,7 +95,7 @@ public:
     // printCalibrationStatus();
 
     fast_mode();
-    Serial.println("stepper speed: " + String(_stepper.speed()));
+    // Serial.println("stepper speed: " + String(_stepper.speed()));
 
     while (!_hasBeenCalibrated)
       _stepper.runSpeed();
@@ -106,6 +115,7 @@ public:
 
   int _previous_entering_home = 0;
   int _previous_leaving_home = 0;
+  int _most_recent_calibration_position = 0; // use to track no movement or backwards movement
 
   void enableAutoCalibration()
   {
@@ -120,7 +130,8 @@ public:
   void autoCalibrateFromInterupt(bool state)
   {
     // Serial.println("\nMotor autoCalibrateFromInterupt called with state: " + String(state));
-    Serial.print("autoCalibrate " + _name + ": ");
+    Serial.println("### autoCalibrate " + _name + "###");
+    int current_position = _stepper.currentPosition();
 
     if (_autoCalibrationEnabled == false)
     {
@@ -128,22 +139,47 @@ public:
       return;
     }
 
+    if (!_autoCalibrateIsMovementSane(current_position))
+    {
+      Serial.println("Auto calibration sanity check failed, skipping ISR handling.");
+      return;
+    }
+
     if (state == true)
     {
-      _autoCalibrateEnterHome();
+      _autoCalibrateEnterHome(current_position);
     }
     else
     {
-      _autoCalibrateLeaveHome();
+      _autoCalibrateLeaveHome(current_position);
     }
 
     if (_stepsAcrossHomeHasBeenCalibrated && _stepsPerRotationHasBeenCalibrated)
     {
-      _autoCalibrateSetAngle(state);
       _hasBeenCalibrated = true;
     }
 
     // printCalibrationStatus();
+  }
+
+  bool _autoCalibrateIsMovementSane(int current_position)
+  {
+    int recent_calibration_position = _most_recent_calibration_position;
+
+    // no movement or backwards or too small to be realistic
+    if (current_position <= recent_calibration_position)
+    {
+      Serial.println("No movement or backwards - skipping calibration.");
+      return false;
+    }
+    if (abs(current_position - recent_calibration_position) < 10)
+    {
+      Serial.println("Movement too small to be realistic - skipping calibration.");
+      return false;
+    }
+
+    _most_recent_calibration_position = current_position;
+    return true;
   }
 
   /*
@@ -152,19 +188,11 @@ public:
   case B           *----------------------------->
   case C  *-------------------------------------->
   */
-  void _autoCalibrateEnterHome()
+  void _autoCalibrateEnterHome(int current_position)
   {
-    int current_position = _stepper.currentPosition();
     int last_entering_position = _previous_entering_home;
 
     _previous_entering_home = current_position;
-
-    // no movement or backwards
-    if (current_position <= last_entering_position)
-    {
-      Serial.println("No movement or backwards - skipping calibration.");
-      return;
-    }
 
     // case A and case B
     if (!last_entering_position)
@@ -180,6 +208,23 @@ public:
       _stepsPerRotationHasBeenCalibrated = true;
       Serial.println("Case C: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
     }
+
+    // if we have calibrated both steps across home and steps per rotation, we
+    // can calculate the angle across home - the center of the home sensor is at 0 degrees.
+    if (_stepsAcrossHomeHasBeenCalibrated && _stepsPerRotationHasBeenCalibrated)
+    {
+
+      float angle_across_home = float(_stepsAcrossHome) / float(_stepsPerRotation) * 360.0;
+      float angleAtEntryToHome = normalizeAngle(-angle_across_home / 2.0);
+      float angle_adjustment = angleAtEntryToHome - _current_angle;
+      if (angle_adjustment > 180.0)
+        angle_adjustment -= 360.0;
+
+      Serial.println(
+          "Calibrating angle from " + String(_current_angle) + " to " + String(angleAtEntryToHome) + " - delta of " + String(angle_adjustment));
+
+      _current_angle = angleAtEntryToHome;
+    }
   }
 
   /*
@@ -188,21 +233,13 @@ public:
   case E                                    *---------->
   case F           *----------------------------------->
   */
-  void _autoCalibrateLeaveHome()
+  void _autoCalibrateLeaveHome(int current_position)
   {
     // leaving home - store values
-    int current_position = _stepper.currentPosition();
     int last_leaving_position = _previous_leaving_home;
 
     // set this regardless of below
     _previous_leaving_home = current_position;
-
-    // No movement or backwards
-    if (current_position <= last_leaving_position)
-    {
-      Serial.println("No movement or backwards: skipping calibration.");
-      return;
-    }
 
     // case D
     if (!_previous_entering_home)
@@ -227,15 +264,6 @@ public:
       Serial.println("Case F: calibrated _stepsPerRotation to " + String(_stepsPerRotation));
     }
   };
-
-  void _autoCalibrateSetAngle(bool state)
-  {
-    //
-    int correctionDirection = state ? -1.0 : 1.0;
-
-    float angle_across_home = 1.0 * _stepsAcrossHome / _stepsPerRotation * 360.0;
-    _current_angle = correctionDirection * angle_across_home / 2.0;
-  }
 
   void printCalibrationStatus()
   {
@@ -315,34 +343,46 @@ public:
   float _gotoAngle(
       float angle,
       bool clockwiseOnly,
-      float ignoreableAngle = 0)
+      float ignoreAngleLargerThan = 358.0)
   {
-    // Serial.println("Desired angle after move: " + String(angle));
-    // Serial.println("Current angle before move: " + String(_current_angle));
+    angle = normalizeAngle(angle);
+
+    Serial.println("Desired angle after move: " + String(angle));
+    Serial.println("Current angle before move: " + String(_current_angle));
 
     float angle_delta = angle - _current_angle;
-
-    if (abs(angle_delta) < ignoreableAngle)
-    {
-      // Sometimes the movement of one part of clock puts us slightly ahead of where we
-      // should be. Instead of doing a full loop just wait for the angle wanted to catch
-      // up with us
-      Serial.println("Skipping movement for angle " + String(angle_delta));
-      return 0.0;
-    }
 
     if (clockwiseOnly)
     {
       while (angle_delta < 0)
         angle_delta += 360.0;
+
+      if (angle_delta > ignoreAngleLargerThan)
+      {
+        // Sometimes the movement of one part of clock puts us slightly ahead of where we
+        // should be. Instead of doing a full loop just wait for the angle wanted to catch
+        // up with us
+        Serial.println("Skipping movement for angle " + String(angle_delta));
+        return 0.0;
+      }
     }
-    // Serial.println("angle_delta: " + String(angle_delta));
+    else
+    {
+      // go directly, even if it means going backwards
+      while (angle_delta > 180.0)
+        angle_delta -= 360.0;
+      while (angle_delta < -180.0)
+        angle_delta += 360.0;
+    }
+
+    Serial.println("angle_delta: " + String(angle_delta));
 
     // if (angle_delta > 5) {
     //   Serial.println("largish angle " + String(angle_delta));
     // }
 
     // calculate the number of steps to move
+    float degrees_per_step = 360.0 / _stepsPerRotation;
     int steps_to_move = floor(angle_delta / 360.0 * _stepsPerRotation);
     Serial.println("steps_to_move_" + _name + ": " + String(steps_to_move));
     if (steps_to_move == 0)
@@ -354,20 +394,24 @@ public:
 
     // move to the target position
     _stepper.move(steps_to_move);
-    // Serial.println("accelerations is : " + String(_stepper.acceleration()));
-    while (_stepper.run())
-      1;
 
-    // update the current angle
-    float degrees_per_step = 360.0 / _stepsPerRotation;
-    _current_angle += steps_to_move * degrees_per_step;
+    int steps_taken_recorded = 0;
+    while (_stepper.isRunning())
+    {
+      _stepper.run();
+      int steps_taken = steps_to_move - _stepper.distanceToGo();
+
+      if (steps_taken != steps_taken_recorded)
+      {
+        int steps_taken_this_iteration = steps_taken - steps_taken_recorded;
+        _current_angle = normalizeAngle(_current_angle + degrees_per_step * steps_taken_this_iteration);
+        steps_taken_recorded += steps_taken_this_iteration;
+      }
+    }
+
     // Serial.println("steps_to_move: " + String(steps_to_move));
     // Serial.println("_stepsPerRotation: " + String(_stepsPer_rotation));
     // Serial.println("_current_angle += " + String( steps_to_move * degrees_per_step));
-
-    // keep the current angle in the range 0-360
-    while (_current_angle >= 360)
-      _current_angle -= 360.0;
 
     // Serial.println("Current angle after move: " + String(_current_angle));
 
@@ -436,6 +480,11 @@ public:
     out += "\n";
 
     return out;
+  };
+
+  float getCurrentAngle()
+  {
+    return _current_angle;
   };
 
 private:

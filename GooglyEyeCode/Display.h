@@ -43,6 +43,7 @@ public:
 
   void displayTime(int hours, int mins, int secs = 0)
   {
+    Serial.println("\n");
     Serial.println(
         "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
 
@@ -72,18 +73,21 @@ public:
     _glintMotor.adjust_angle(delta);
     _glintMotor.adjust_angle(delta * _glint_correction_per_pupil_degree);
 
-    _glintMotor.gotoAngleClockwise(mins_angle);
+    // _glintMotor.gotoAngleClockwise(mins_angle);
 
     // put motors to sleep
     delay(50);
     _pupilMotor.sleep();
     _glintMotor.sleep();
+
+    Serial.println("pupil_angle: " + String(_pupilMotor.getCurrentAngle()));
+    Serial.println("glint_angle: " + String(_glintMotor.getCurrentAngle()));
   };
 
   void calibrate()
   {
     calibrateMotors();
-    calibrateGlintDrift();
+    // calibrateGlintDrift();
   }
 
   void calibrateMotors()
@@ -94,11 +98,23 @@ public:
 
     Serial.println("Calibrating pupil motor...");
     _pupilMotor.calibrateUsingInterupts();
-    _pupilMotor.gotoAngleDirect(0);
+    _pupilMotor.gotoAngleDirect(-2);
+
     // Serial.println(_pupilMotor.debug());
 
     Serial.println("Calibrating glint motor...");
     _glintMotor.calibrateUsingInterupts();
+
+    int gotoAngle = 60;
+    while (1)
+    {
+      Serial.println("\n");
+      _glintMotor.gotoAngleDirect(gotoAngle);
+      gotoAngle += 120;
+      // gotoAngle *= -1;
+
+      delay(1000);
+    }
   }
 
   void calibrateGlintDrift()
