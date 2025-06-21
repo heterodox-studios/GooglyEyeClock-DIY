@@ -95,10 +95,10 @@ public:
     // printCalibrationStatus();
 
     fast_mode();
-    // Serial.println("stepper speed: " + String(_stepper.speed()));
+    _stepper.move(1000000);
 
     while (!_hasBeenCalibrated)
-      _stepper.runSpeed();
+      _stepper.run();
 
     Serial.println("\nCalibration complete.");
     // printCalibrationStatus();
