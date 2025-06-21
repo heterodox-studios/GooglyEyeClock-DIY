@@ -261,6 +261,11 @@ public:
     out += _steps_across_home_sensor;
     out += "\n";
 
+    out += "# angle across home sensor: ";
+    out += 1.0 * _steps_across_home_sensor / _steps_per_rotation * 360.0;
+    out += " degrees\n";
+    out += "\n";
+
     out += "# current steps position: ";
     out += _stepper.currentPosition();
     out += "\n";
