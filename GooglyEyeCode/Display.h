@@ -89,8 +89,8 @@ public:
 
   void displayTime(int hours, int mins, int secs = 0)
   {
-    // Serial.println(
-    //     "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
+    Serial.println(
+        "Displaying time: " + String(hours) + ":" + String(mins) + ":" + String(secs));
 
     float fractional_minutes = mins + (secs / 60.0);
     float mins_angle = fractional_minutes / 60.0 * 360.0;

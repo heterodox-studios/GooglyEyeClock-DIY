@@ -78,15 +78,23 @@ void loop()
   //   }
   // }
 
-  // update time every minute
-  display.displayTime(timekeeper);
-  delay(1000 * (60 - timekeeper.secs()));
-
-  // update time continuously
-  // Serial.println();
+  // Display current time every minute
   // display.displayTime(timekeeper);
 
-  // delay(10 * 1000);
+  // Wait until the next minute change
+  // delay(1000 * (60 - timekeeper.secs()));
+
+  // Advance one minute on display every second
+  int minutes = 0;
+  int advancePerIteration = 5; // how many minutes to advance per iteration
+  while (1)
+  {
+    display.displayTime(
+        (minutes / 60) % 12,
+        minutes % 60);
+    delay(1000);
+    minutes += advancePerIteration;
+  }
 }
 
 // void swing_past_possible_hall_sensor_trigger_times()
