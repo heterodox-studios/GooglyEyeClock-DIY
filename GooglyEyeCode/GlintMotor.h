@@ -7,9 +7,9 @@
 #ifndef GlintMotor_h
 #define GlintMotor_h
 
+#include "local_config.h"
 #include "Arduino.h"
 #include "Motor.h"
-#include "local_config.h"
 
 class GlintMotor : public Motor
 {

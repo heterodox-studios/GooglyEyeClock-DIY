@@ -7,9 +7,9 @@
 #ifndef PupilMotor_h
 #define PupilMotor_h
 
+#include "local_config.h"
 #include "Arduino.h"
 #include "Motor.h"
-#include "local_config.h"
 
 class PupilMotor : public Motor
 {
