@@ -7,29 +7,33 @@
 Display display;
 Timekeeper timekeeper;
 
-bool pupilLightGateLastSeenState = false;
-
-void lightGateISR()
-{
-    bool state = digitalRead(pupilLightGatePin);
-    if (state != pupilLightGateLastSeenState)
-    {
-        pupilLightGateLastSeenState = state;
-        // Serial.println("pupilLightGateISR triggered: " + String(state));
-        display.PupilLightGateChangeISR(state);
-    }
-}
-
 void setup()
 {
-    pinMode(pupilLightGatePin, INPUT_PULLUP);
-    bool pupilLightGateLastSeenState = digitalRead(pupilLightGatePin);
-    attachInterrupt(
-        digitalPinToInterrupt(pupilLightGatePin),
-        lightGateISR,
-        CHANGE);
+    Serial.begin(115200);
+    for (int i = 0; i < 20; i++)
+        if (!Serial)
+            delay(200); // wait for serial port to connect. Needed for native USB
+
+    setupPins();
+    setupInterrupts();
 
     display.calibrate();
+}
+
+void setupPins()
+{
+    // configure sensor pins
+    pinMode(pupilLightGatePin, INPUT_PULLUP);
+}
+
+void setupInterrupts()
+{
+    // setup the various interupts
+    attachInterrupt(
+        digitalPinToInterrupt(pupilLightGatePin),
+        []
+        { display.pupilLightGateChangeISR(digitalRead(pupilLightGatePin)); },
+        CHANGE);
 }
 
 void loop() {}

@@ -53,8 +53,11 @@ public:
     pinMode(_pin4, OUTPUT);
   };
 
+  long position = 0;
+
   // take a single step
-  void step(int dir = +1)
+  void
+  step(int dir = +1)
   {
     // +ve (default) is one forward step, negative is one backwards
 
@@ -72,6 +75,7 @@ public:
     }
 
     writeStepToPins();
+    position += dir;
   }
 
   void sleep()

@@ -27,7 +27,7 @@ public:
   void calibrate()
   {
 
-    while (_pupilReachedLightGate == false)
+    while (1)
     {
       _pupilMotor.step();
       delay(2);
@@ -38,10 +38,23 @@ public:
     _glintMotor.sleep();
   };
 
-  void PupilLightGateChangeISR(bool state)
+  void pupilLightGateChangeISR(bool state)
   {
-    Serial.println("PupilLightGateChangeISR: " + String(state));
+    state == HIGH                  //
+        ? pupilLightGateEnterISR() //
+        : pupilLightGateLeaveISR();
+  }
+
+  void pupilLightGateEnterISR()
+  {
+    Serial.println("pupilLightGateEnterISR @ " + String(_pupilMotor.position));
     _pupilReachedLightGate = true;
+  }
+
+  void pupilLightGateLeaveISR()
+  {
+    Serial.println("pupilLightGateLeaveISR @ " + String(_pupilMotor.position));
+    _pupilReachedLightGate = false;
   }
 
 private:
