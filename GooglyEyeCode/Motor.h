@@ -29,19 +29,6 @@ public:
     // name can be useful when debugging
     _name = name;
 
-    /*
-      For the 28BYJ-48 stepper motor, the wiring by default is as follows:
-      - IN1   Blue    B-
-      - IN2   Pink    A+
-      - IN3   Yellow  B+
-      - IN4   Orange  A-
-      - Vmot  Red
-
-      So for a normal setup order is B-, B+, A+, A-  == 1, 3, 2, 4
-
-      To reverse use A-, A+, B+, B- == 4, 2, 3, 1
-    */
-
     // setup pins
     _pin1 = pin1;
     _pin2 = pin2;
@@ -56,9 +43,10 @@ public:
   long position = 0;
 
   // take a single step
-  void
-  step(int dir = +1)
+  // void step(int dir = +1)
+  void step()
   {
+    int dir = +1;
     // +ve (default) is one forward step, negative is one backwards
 
     if (dir > 0)
