@@ -32,8 +32,8 @@ public:
 
     calibrate();
 
-    _pupilMotor.slow_mode();
-    _glintMotor.slow_mode();
+    // _pupilMotor.slow_mode();
+    // _glintMotor.slow_mode();
   };
 
   void displayTime(Timekeeper now)
@@ -67,27 +67,84 @@ public:
     delay(50);
 
     // track how much pupil rotates so we can adjust the glint afterwards
-    float delta = _pupilMotor.gotoAngleClockwise(hours_angle);
+    float delta = 0.0;
+    delta += _pupilMotor.gotoAngleClockwise(hours_angle);
+    // delta += _pupilMotor.gotoAngleClockwise(hours_angle); // apply any adjustments after calibration
 
     // adjust the angle glint thinks it is at
     _glintMotor.adjust_angle(delta);
-    _glintMotor.adjust_angle(delta * _glint_correction_per_pupil_degree);
+    // _glintMotor.adjust_angle(delta * _glint_correction_per_pupil_degree);
 
-    // _glintMotor.gotoAngleClockwise(mins_angle);
+    _glintMotor.gotoAngleClockwise(mins_angle);
+    // _glintMotor.gotoAngleClockwise(mins_angle); // apply any adjustments after calibration
 
     // put motors to sleep
     delay(50);
     _pupilMotor.sleep();
     _glintMotor.sleep();
 
-    Serial.println("pupil_angle: " + String(_pupilMotor.getCurrentAngle()));
-    Serial.println("glint_angle: " + String(_glintMotor.getCurrentAngle()));
+    Serial.println("pupil.currentAngle:    " + String(_pupilMotor.getCurrentAngle()));
+    Serial.println("glint.currentAngle:    " + String(_glintMotor.getCurrentAngle()));
+    Serial.println("glint.unadjustedAngle: " + String(_glintMotor.getUnadjustedAngle()));
   };
 
   void calibrate()
   {
+    // dump in known values to speed up calibration
+    // _pupilMotor._stepsPerRotation = 14271;
+    // _pupilMotor._stepsAcrossHome = 594;
+    // _pupilMotor._stepsAcrossHomeHasBeenCalibrated = true;
+    // _pupilMotor._stepsPerRotationHasBeenCalibrated = true;
+
+    // _glintMotor._stepsPerRotation = 14789;
+    // _glintMotor._stepsAcrossHome = 375;
+    // _glintMotor._stepsAcrossHomeHasBeenCalibrated = true;
+    // _glintMotor._stepsPerRotationHasBeenCalibrated = true;
     calibrateMotors();
-    // calibrateGlintDrift();
+
+    // _glint_correction_per_pupil_degree = 0.30;
+    calibrateGlintDrift();
+
+    // displayTime(6, 0);
+
+    // Serial.println(_glintMotor.debug());
+    // displayTime(11, 55);
+    // displayTime(11, 56);
+    // displayTime(11, 57);
+    // displayTime(11, 58);
+    // displayTime(11, 59);
+    // displayTime(12, 0);
+    // displayTime(12, 01);
+    // displayTime(12, 02);
+
+    // delay(2000);
+    // displayTime(6, 0);
+
+    // Serial.println("\n\n");
+    // Serial.println(_pupilMotor.debug());
+    // Serial.println(_glintMotor.debug());
+
+    // Serial.println(_glintMotor.debug());
+    // displayTime(11, 55);
+    // displayTime(12, 0);
+    // displayTime(12, 05);
+    // Serial.println(_glintMotor.debug());
+
+    // _pupilMotor.gotoAngleDirect(0);
+    // _glintMotor.gotoAngleDirect(0);
+
+    // delay(10000000);
+
+    // int gotoAngle = 60;
+    // while (1)
+    // {
+    //   Serial.println("\n");
+    //   _glintMotor.gotoAngleDirect(gotoAngle);
+    //   gotoAngle += 120;
+    //   // gotoAngle *= -1;
+
+    //   delay(1000);
+    // }
   }
 
   void calibrateMotors()
@@ -98,27 +155,17 @@ public:
 
     Serial.println("Calibrating pupil motor...");
     _pupilMotor.calibrateUsingInterupts();
-    _pupilMotor.gotoAngleDirect(-2);
-
-    // Serial.println(_pupilMotor.debug());
+    _pupilMotor.gotoAngleDirect(0);
 
     Serial.println("Calibrating glint motor...");
     _glintMotor.calibrateUsingInterupts();
-
-    int gotoAngle = 60;
-    while (1)
-    {
-      Serial.println("\n");
-      _glintMotor.gotoAngleDirect(gotoAngle);
-      gotoAngle += 120;
-      // gotoAngle *= -1;
-
-      delay(1000);
-    }
   }
 
   void calibrateGlintDrift()
   {
+
+    // _glintMotor.disableAutoCalibration();
+
     Serial.println("Calibrating drift of glint when pupil rotates...");
     _pupilMotor.gotoAngleDirect(0);
     _glintMotor.gotoAngleDirect(0);
@@ -135,6 +182,8 @@ public:
 
     Serial.print("_glint_correction_per_pupil_degree: ");
     Serial.println(_glint_correction_per_pupil_degree);
+
+    // _glintMotor.enableAutoCalibration();
   };
 
   void passOnPupilISR(bool state)

@@ -80,8 +80,15 @@ void glintHallEffectISR()
 void loop()
 {
 
-  // display.displayTime(0, 0);
-  // delay(10000);
+  display.displayTime(0, 0);
+
+  display.displayTime(11, 50);
+  display.displayTime(11, 55);
+  display.displayTime(0, 0);
+  display.displayTime(0, 5);
+  display.displayTime(0, 10);
+
+  delay(1000000);
 
   // swing_past_possible_hall_sensor_trigger_times();
 
@@ -100,16 +107,18 @@ void loop()
 
   // QuickTime(60);
 
-  while (1)
-  {
-    // Display current time every second
-    display.displayTime(0, 0);
-    delay(1000);
-    display.displayTime(0, 0);
-    delay(1000);
-    display.displayTime(6, 0);
-    delay(1000);
-  }
+  delay(1000000);
+
+  // while (1)
+  // {
+  //   // Display current time every second
+  //   display.displayTime(0, 0);
+  //   delay(1000);
+  //   display.displayTime(0, 0);
+  //   delay(1000);
+  //   display.displayTime(6, 0);
+  //   delay(1000);
+  // }
 }
 
 void QuickTime(int advancePerIteration)
