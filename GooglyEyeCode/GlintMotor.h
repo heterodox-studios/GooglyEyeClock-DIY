@@ -20,10 +20,7 @@ public:
             glintStepperPin1,
             glintStepperPin2,
             glintStepperPin3,
-            glintStepperPin4,
-            glintHallEffectPin,
-            false,
-            false) {
+            glintStepperPin4) {
           // Serial.println("GlintMotor constructor called.");
         };
 };

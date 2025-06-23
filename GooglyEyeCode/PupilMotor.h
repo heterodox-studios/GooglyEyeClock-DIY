@@ -20,10 +20,7 @@ public:
             pupilStepperPin1,
             pupilStepperPin2,
             pupilStepperPin3,
-            pupilStepperPin4,
-            pupilLightGatePin,
-            false,
-            true) {
+            pupilStepperPin4) {
           // Serial.println("PupilMotor constructor called.");
         };
 };
