@@ -27,41 +27,58 @@ public:
   void calibrate()
   {
 
-    while (1)
+    while (!(_pupilMotor._stepsPerRotation && _pupilMotor._stepsAcrossHome))
     {
-      _pupilMotor.step();
-      delay(2);
+      stepPupil();
     }
 
-    delay(1000);
-    _pupilMotor.sleep();
-    _glintMotor.sleep();
+    for (int i = 0; i < _pupilMotor._stepsAcrossHome / 2; i++)
+    {
+      stepPupil();
+    }
   };
+
+  void stepPupil()
+  {
+    _pupilMotor.step();
+    delay(1);
+  }
 
   void pupilLightGateChangeISR(bool state)
   {
-    state == HIGH                  //
-        ? pupilLightGateEnterISR() //
-        : pupilLightGateLeaveISR();
+    state == HIGH                    //
+        ? homeEnterISR(&_pupilMotor) //
+        : homeLeaveISR(&_pupilMotor);
   }
 
-  void pupilLightGateEnterISR()
+  void homeEnterISR(Motor *motor)
   {
-    Serial.println("pupilLightGateEnterISR @ " + String(_pupilMotor.position));
-    _pupilReachedLightGate = true;
+    // we can calculate the stepsPerRotation if we've entered before!
+    if (_previousEnterPosition)
+    {
+      motor->_stepsPerRotation = motor->position - _previousEnterPosition;
+      Serial.println("_stepsPerRotation:" + String(motor->_stepsPerRotation));
+    }
+
+    // set both to 1, using this as a starting point
+    _previousEnterPosition = 1;
+    motor->position = 1;
   }
 
-  void pupilLightGateLeaveISR()
+  void homeLeaveISR(Motor *motor)
   {
-    Serial.println("pupilLightGateLeaveISR @ " + String(_pupilMotor.position));
-    _pupilReachedLightGate = false;
+    if (_previousEnterPosition)
+    {
+      motor->_stepsAcrossHome = motor->position - _previousEnterPosition;
+      Serial.println("_stepsAcrossHome:" + String(motor->_stepsAcrossHome));
+    }
   }
 
 private:
   Motor _pupilMotor;
   Motor _glintMotor;
 
-  bool _pupilReachedLightGate = false;
+  int _previousEnterPosition = 0;
 };
 
 // calibrate();

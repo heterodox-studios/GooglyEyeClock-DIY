@@ -41,6 +41,8 @@ public:
   };
 
   long position = 0;
+  long _stepsPerRotation = 0;
+  long _stepsAcrossHome = 0;
 
   // take a single step
   // void step(int dir = +1)
@@ -76,8 +78,9 @@ public:
     writeStepToPins();
   }
 
-private:
   String _name;
+
+private:
   int _pin1;
   int _pin2;
   int _pin3;
