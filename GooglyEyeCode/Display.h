@@ -18,18 +18,18 @@ For now we are ignoring acceleration.
 class Display
 {
 public:
-  Display() {};
-
-  void setup()
+  Display()
   {
-    Serial.println("Setting up display...");
     _pupilMotor = PupilMotor();
     _glintMotor = GlintMotor();
+  };
 
-    for (int i = 0; i < 1002; i++)
+  void calibrate()
+  {
+
+    while (_pupilReachedLightGate == false)
     {
       _pupilMotor.step();
-      _glintMotor.step();
       delay(2);
     }
 
@@ -38,9 +38,17 @@ public:
     _glintMotor.sleep();
   };
 
+  void PupilLightGateChangeISR(bool state)
+  {
+    Serial.println("PupilLightGateChangeISR: " + String(state));
+    _pupilReachedLightGate = true;
+  }
+
 private:
   Motor _pupilMotor;
   Motor _glintMotor;
+
+  bool _pupilReachedLightGate = false;
 };
 
 // calibrate();

@@ -7,9 +7,29 @@
 Display display;
 Timekeeper timekeeper;
 
+bool pupilLightGateLastSeenState = false;
+
+void lightGateISR()
+{
+    bool state = digitalRead(pupilLightGatePin);
+    if (state != pupilLightGateLastSeenState)
+    {
+        pupilLightGateLastSeenState = state;
+        // Serial.println("pupilLightGateISR triggered: " + String(state));
+        display.PupilLightGateChangeISR(state);
+    }
+}
+
 void setup()
 {
-    display.setup();
+    pinMode(pupilLightGatePin, INPUT_PULLUP);
+    bool pupilLightGateLastSeenState = digitalRead(pupilLightGatePin);
+    attachInterrupt(
+        digitalPinToInterrupt(pupilLightGatePin),
+        lightGateISR,
+        CHANGE);
+
+    display.calibrate();
 }
 
 void loop() {}
