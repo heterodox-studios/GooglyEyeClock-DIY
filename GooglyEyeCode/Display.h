@@ -1,12 +1,8 @@
 /*
 
-  Abstraction of the display of the time.
+This module manages the display. It tracks where the angles of pupil and glint. It calculates movement needed to reach certain angles and executes them by stepping the motors.
 
-  Given a certain time to display it moves the pupil and glint to display it.
-
-  Keeps track of how many steps are needed for a full rotation of each part and what the drift is between pupil and glint.
-
-  No timekeeping is done here, just the display of a time passed in.
+For now we are ignoring acceleration.
 
 */
 
@@ -24,9 +20,10 @@ class Display
 public:
   Display() {};
 
-  void setup() {
-    // Serial.println("Setting up display...");
-    // _pupilMotor = PupilMotor();
+  void setup()
+  {
+    Serial.println("Setting up display...");
+    _pupilMotor = PupilMotor();
     // _glintMotor = GlintMotor();
 
     // calibrate();
@@ -198,8 +195,8 @@ public:
   //   }
 
   // private:
-  //   Motor _pupilMotor;
-  //   Motor _glintMotor;
+  Motor _pupilMotor;
+  Motor _glintMotor;
   //   float _glint_correction_per_pupil_degree = 0.0; // how much the glint moves per degree of pupil movement
 };
 

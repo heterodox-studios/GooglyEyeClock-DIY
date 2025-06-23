@@ -7,7 +7,10 @@
 Display display;
 Timekeeper timekeeper;
 
-void setup() {}
+void setup()
+{
+    display.setup();
+}
 
 void loop() {}
 
