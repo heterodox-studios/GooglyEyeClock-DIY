@@ -190,7 +190,7 @@ class PupilMotor(Motor):
 
 
 class GlintMotor(Motor):
-    def __init__(self):
+    def __init__(self, parent_motor):
         super().__init__(
             "glint",
             config.glint_stepper["pin1"],
@@ -200,3 +200,8 @@ class GlintMotor(Motor):
             config.glint_stepper["sensor_pin"],
             config.glint_stepper["sensor_rising_is_enter"],
         )
+        self._parent = parent_motor
+
+    def calibrate(self):
+        self._parent.calibrate()
+        super().calibrate()
