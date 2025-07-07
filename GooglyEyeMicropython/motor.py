@@ -2,6 +2,8 @@ import time
 
 from machine import Pin
 
+import config
+
 
 class Motor:
 
@@ -172,3 +174,29 @@ class Motor:
                     self._exit_position, self._steps_across_home, self._name
                 )
             )
+
+
+class PupilMotor(Motor):
+    def __init__(self):
+        super().__init__(
+            "pupil",
+            config.pupil_stepper["pin1"],
+            config.pupil_stepper["pin2"],
+            config.pupil_stepper["pin3"],
+            config.pupil_stepper["pin4"],
+            config.pupil_stepper["sensor_pin"],
+            config.pupil_stepper["sensor_rising_is_enter"],
+        )
+
+
+class GlintMotor(Motor):
+    def __init__(self):
+        super().__init__(
+            "glint",
+            config.glint_stepper["pin1"],
+            config.glint_stepper["pin2"],
+            config.glint_stepper["pin3"],
+            config.glint_stepper["pin4"],
+            config.glint_stepper["sensor_pin"],
+            config.glint_stepper["sensor_rising_is_enter"],
+        )

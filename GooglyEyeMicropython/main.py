@@ -1,28 +1,7 @@
-import config
-from machine import Pin
-from motor import Motor
-from time import sleep_us
+from motor import PupilMotor, GlintMotor
 
-glint_motor = Motor(
-    "glint",
-    config.glint_stepper["pin1"],
-    config.glint_stepper["pin2"],
-    config.glint_stepper["pin3"],
-    config.glint_stepper["pin4"],
-    config.glint_stepper["sensor_pin"],
-    config.glint_stepper["sensor_rising_is_enter"],
-)
-
-pupil_motor = Motor(
-    "pupil",
-    config.pupil_stepper["pin1"],
-    config.pupil_stepper["pin2"],
-    config.pupil_stepper["pin3"],
-    config.pupil_stepper["pin4"],
-    config.pupil_stepper["sensor_pin"],
-    config.pupil_stepper["sensor_rising_is_enter"],
-)
-
+pupil_motor = PupilMotor()
+glint_motor = GlintMotor()
 
 pupil_motor.calibrate()
 glint_motor.calibrate()
