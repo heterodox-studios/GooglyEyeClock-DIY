@@ -1,8 +1,22 @@
+import config
 from motor import Motor
 from time import sleep_us
 
-glint_motor = Motor("glint", 6, 7, 8, 9)
-pupil_motor = Motor("pupil", 10, 11, 12, 13)
+glint_motor = Motor(
+    "glint",
+    config.glint_stepper["pin1"],
+    config.glint_stepper["pin2"],
+    config.glint_stepper["pin3"],
+    config.glint_stepper["pin4"],
+)
+
+pupil_motor = Motor(
+    "pupil",
+    config.pupil_stepper["pin1"],
+    config.pupil_stepper["pin2"],
+    config.pupil_stepper["pin3"],
+    config.pupil_stepper["pin4"],
+)
 
 while True:
     glint_motor.step()
