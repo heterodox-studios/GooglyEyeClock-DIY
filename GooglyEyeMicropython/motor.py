@@ -5,9 +5,9 @@ class Motor:
 
     position = 0
 
-    _stepIndex = 0
-    _stepCount = 8
-    _stepSequence = (
+    _step_index = 0
+    _step_count = 8
+    _step_sequence = (
         (1, 0, 0, 0),
         (1, 1, 0, 0),
         (0, 1, 0, 0),
@@ -34,10 +34,10 @@ class Motor:
         # Always take a forwards step
         dir = 1
 
-        self._stepIndex += dir
+        self._step_index += dir
 
-        if self._stepIndex >= self._stepCount:
-            self._stepIndex = 0
+        if self._step_index >= self._step_count:
+            self._step_index = 0
 
         self.writeStepToPins()
         self.position += dir
@@ -50,10 +50,10 @@ class Motor:
 
     def writeStepToPins(self):
         self.writeToPins(
-            self._stepSequence[self._stepIndex][0],
-            self._stepSequence[self._stepIndex][1],
-            self._stepSequence[self._stepIndex][2],
-            self._stepSequence[self._stepIndex][3],
+            self._step_sequence[self._step_index][0],
+            self._step_sequence[self._step_index][1],
+            self._step_sequence[self._step_index][2],
+            self._step_sequence[self._step_index][3],
         )
 
     def writeToPins(self, p1, p2, p3, p4):
