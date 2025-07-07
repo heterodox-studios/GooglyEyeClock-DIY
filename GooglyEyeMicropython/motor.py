@@ -23,7 +23,9 @@ class Motor:
         (1, 0, 0, 1),
     )
 
-    def __init__(self, name, pin1, pin2, pin3, pin4, sensor_pin):
+    def __init__(
+        self, name, pin1, pin2, pin3, pin4, sensor_pin, sensor_rising_is_enter
+    ):
 
         # name can be useful when debugging
         self._name = name
@@ -35,6 +37,7 @@ class Motor:
         self._pin4 = Pin(pin4, Pin.OUT)
 
         # setup input pins and attach interupt
+        self._sensor_rising_is_enter = sensor_rising_is_enter
         self._sensor_pin = Pin(sensor_pin, mode=Pin.IN, pull=Pin.PULL_UP)
         self._sensor_pin.irq(self.isr_cb, Pin.IRQ_FALLING | Pin.IRQ_RISING)
 
@@ -85,7 +88,7 @@ class Motor:
         self._pin4.value(p4)
 
     def isr_cb(self, pin):
-        if pin.value():
+        if pin.value() == self._sensor_rising_is_enter:
             self.isr_enter()
         else:
             self.isr_exit()

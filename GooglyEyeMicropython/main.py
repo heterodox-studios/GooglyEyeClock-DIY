@@ -9,7 +9,8 @@ glint_motor = Motor(
     config.glint_stepper["pin2"],
     config.glint_stepper["pin3"],
     config.glint_stepper["pin4"],
-    config.glint_hall_effect_pin,
+    config.glint_stepper["sensor_pin"],
+    config.glint_stepper["sensor_rising_is_enter"],
 )
 
 pupil_motor = Motor(
@@ -18,7 +19,8 @@ pupil_motor = Motor(
     config.pupil_stepper["pin2"],
     config.pupil_stepper["pin3"],
     config.pupil_stepper["pin4"],
-    config.pupil_light_gate_pin,
+    config.pupil_stepper["sensor_pin"],
+    config.pupil_stepper["sensor_rising_is_enter"],
 )
 
 

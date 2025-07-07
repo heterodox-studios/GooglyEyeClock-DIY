@@ -4,6 +4,8 @@ pupil_stepper = {
     "pin2": 11,
     "pin3": 12,
     "pin4": 13,
+    "sensor_pin": 14,
+    "sensor_rising_is_enter": True,
 }
 # glint motor pin definitions
 glint_stepper = {
@@ -11,8 +13,6 @@ glint_stepper = {
     "pin2": 7,
     "pin3": 8,
     "pin4": 9,
+    "sensor_pin": 15,
+    "sensor_rising_is_enter": False,
 }
-
-# sensor pins
-pupil_light_gate_pin = 14
-glint_hall_effect_pin = 15
