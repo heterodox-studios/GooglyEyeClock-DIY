@@ -25,10 +25,4 @@ pupil_motor = Motor(
 
 
 pupil_motor.calibrate()
-
-# while True:
-#     pupil_motor.step()
-#     pupil_motor.update_after_isr()
-#     glint_motor.step()
-#     glint_motor.update_after_isr()
-#     sleep_us(1000)
+glint_motor.calibrate()

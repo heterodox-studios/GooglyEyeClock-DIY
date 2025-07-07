@@ -6,6 +6,13 @@ from machine import Pin
 class Motor:
 
     position = 0
+    current_angle = 0
+    target_angle = 0
+
+    _minimum_angle_delta = 0.2
+    _degrees_per_step = 0
+
+    _minimum_interval_between_steps_us = 1000
 
     _enter_position = 0
     _last_enter_position = 0
@@ -49,11 +56,42 @@ class Motor:
     def calibrate(self):
         """Spin the motor until we have calibrated, and then stop at noon."""
 
-        while True:
+        # reset values
+        self._steps_per_rotation = 0
+        self._steps_across_home = 0
+        self._enter_position = 0
+        self._last_enter_position = 0
+        self._exit_position = 0
+        self._last_exit_position = 0
+
+        # Keep stepping until we have values needed
+        while self._steps_per_rotation == 0 or self._steps_across_home == 0:
             self.step()
-            time.sleep_us(1000)
-            if self._steps_per_rotation and self._steps_across_home:
-                break
+            time.sleep_us(self._minimum_interval_between_steps_us)
+
+        # Now calibrated, set angle correctly
+        # Currently we have just entered home
+        steps_to_home_center = self._steps_across_home / 2
+        angle_to_home_center = steps_to_home_center / self._steps_per_rotation * 360
+        corrected_angle = 360 - angle_to_home_center
+        self.current_angle = corrected_angle
+
+        # Go to noon (0degrees)
+        self.step_to_target_angle(0)
+
+    def step_to_target_angle(self, target):
+        self.target_angle = target
+        while (
+            self.cw_delta_from_current_to_target() > 0
+            and 360 - self.cw_delta_from_current_to_target() > self._minimum_angle_delta
+        ):
+            self.step()
+            time.sleep_us(self._minimum_interval_between_steps_us)
+
+    def cw_delta_from_current_to_target(self):
+        """returns cw angle to travel to get from current to target"""
+        cw_delta = self.target_angle - self.current_angle
+        return cw_delta % 360
 
     def step(self):
 
@@ -67,6 +105,7 @@ class Motor:
 
         self.writeStepToPins()
         self.position += dir
+        self.current_angle += self._degrees_per_step % 360
 
         self.update_after_isr()
 
@@ -108,9 +147,10 @@ class Motor:
         # entry to entry (full rotation)
         if self._enter_position != self._last_enter_position:
             if self._last_enter_position:
-                self._steps_per_rotation = (
-                    self._enter_position - self._last_enter_position
-                )
+                steps_per_rotation = self._enter_position - self._last_enter_position
+                self._steps_per_rotation = steps_per_rotation
+                self._degrees_per_step = 360 / steps_per_rotation
+
             self._last_enter_position = self._enter_position
 
             print(
