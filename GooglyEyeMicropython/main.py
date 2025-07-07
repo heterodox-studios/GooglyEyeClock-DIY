@@ -1,14 +1,10 @@
-from machine import Pin
-from utime import sleep
+from motor import Motor
+from time import sleep_us
 
-pin = Pin("LED", Pin.OUT)
+glint_motor = Motor("glint", 6, 7, 8, 9)
+pupil_motor = Motor("pupil", 10, 11, 12, 13)
 
-print("LED starts flashing...")
 while True:
-    try:
-        pin.toggle()
-        sleep(1) # sleep 1sec
-    except KeyboardInterrupt:
-        break
-pin.off()
-print("Finished.")
+    glint_motor.step()
+    pupil_motor.step()
+    sleep_us(1000)
