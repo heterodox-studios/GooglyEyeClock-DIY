@@ -2,6 +2,7 @@ import time
 
 from machine import Pin
 
+
 import config
 
 
@@ -9,12 +10,18 @@ class Motor:
 
     # never reset. This may be a bad idea, can cross that bridge when we come to it...
     position = 0
+    target = 0
+    start_from = 0
 
-    # track when we took the last step
-    previous_step_us = 0
+    # track when we can take next step
+    next_step_us = 0
 
     # speed and accelerations
     max_speed = 800  # steps per second
+    min_speed = 2
+    max_interval_between_steps_us = int(1 * 1_000_000)
+    # acceleration = 100  # steps per sec per sec
+    # stopping_distance = 3200  # FIXME - calculate from equation d = v^2/(2*a)
 
     # motor sequence related
     _step_index = 0
@@ -41,25 +48,40 @@ class Motor:
         self._pin3 = Pin(pin3, Pin.OUT)
         self._pin4 = Pin(pin4, Pin.OUT)
 
-    def step(self, steps):
+    def move(self, steps):
+        self.target = self.position + int(steps)
+        self.start_from = self.position
 
-        if steps == 0:
+    @property
+    def is_moving(self):
+        return self.target != self.position
+
+    def step(self):
+
+        steps = self.target - self.position
+        if steps == 0:  # FIXME - buggy for decel to reverse direction
             return False
 
-        # which way to go
-        dir = 1 if steps > 0 else -1
-
-        # print("steps {0}".format(steps))
+        # are we too soon?
+        now_us = time.ticks_us()
+        us_until_next_step = time.ticks_diff(self.next_step_us, now_us)
+        if (
+            us_until_next_step > 0
+            and us_until_next_step < self.max_interval_between_steps_us
+        ):
+            # print(
+            #     "too soon: {0} > 0  from  time.ticks_diff({1}, {2})".format(
+            #         us_until_next_step, self.next_step_us, now_us
+            #     )
+            # )
+            # return False  # too soon to take the step
+            print("sleeping for {0} us".format(us_until_next_step))
+            time.sleep_us(us_until_next_step)
 
         # speed
-        speed = self.max_speed
-
-        # when is the earliest we should take next step?
-        min_interval_us = 1 / speed * 1_000_000
-        step_diff = time.ticks_diff(time.ticks_us(), self.previous_step_us)
-        if step_diff < min_interval_us:
-            # print("too soon: {0} < {1}".format(step_diff, min_interval_us))
-            return False  # too soon to take the step
+        velocity = self.calculate_velocity(steps)
+        speed = abs(velocity)
+        dir = 1 if velocity > 0 else -1
 
         # prep step (reset if needed) and take it
         self._step_index += dir
@@ -67,9 +89,27 @@ class Motor:
         self.writeStepToPins()
 
         # update our tracking of where we are
-        self.previous_step_us = time.ticks_us()
+        min_interval_us = int(1 / speed * 1_000_000)
+        self.next_step_us = time.ticks_add(now_us, min_interval_us)
         self.position += dir
         return True
+
+    def calculate_velocity(self, distance):
+        dir = 1 if distance > 0 else -1
+
+        # poor mans acceleration equations
+        time_factor = 0.5
+        dist_from_start = abs(self.position - self.start_from)
+        speed_from_start = dist_from_start / time_factor
+        speed_to_end = abs(distance) / time_factor
+
+        # check that speed is within allowed norms
+        speed = min(speed_from_start, speed_to_end, self.max_speed)
+        speed = max(speed, self.min_speed)
+
+        # print(distance, speed)
+
+        return dir * speed
 
     def sleep(self):
         self.writeToPins(0, 0, 0, 0)
@@ -100,7 +140,7 @@ class PupilMotor(Motor):
 
 
 class GlintMotor(Motor):
-    def __init__(self, pupil_motor):
+    def __init__(self):
         super().__init__(
             "glint",
             config.glint_stepper["pin1"],
