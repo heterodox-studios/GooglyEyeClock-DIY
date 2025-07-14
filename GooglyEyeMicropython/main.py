@@ -1,28 +1,14 @@
 import time, gc
-from motor import PupilMotor, GlintMotor
-
-pupil_motor = PupilMotor()
-glint_motor = GlintMotor()
-
-if True:
-    pupil_motor.set_target(15000 / 60 / 12)
-    glint_motor.set_target(15000 / 60)
-
-    pupil_motor.set_target(15000)
-    glint_motor.set_target(15000)
-
-    counter = 0
-
-    while pupil_motor.is_moving or glint_motor.is_moving:
-        pupil_motor.step()
-        glint_motor.step()
-
-        # Need to run the garbage collector often to prevent memory bog downs
-        if counter % 100 == 0:
-            gc.collect()
-            pass
-        counter += 1
+from hand import PupilHand
 
 
-pupil_motor.sleep()
-glint_motor.sleep()
+pupil_hand = PupilHand()
+
+pupil_hand.fake_calibration(steps_per_rotation=14257, steps_across_home=586)
+
+
+time.sleep(1)
+
+pupil_hand.target_angle = 90
+while pupil_hand.is_moving:
+    pupil_hand.move_to_target()

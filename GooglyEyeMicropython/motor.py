@@ -51,9 +51,11 @@ class Motor:
         self._pin3 = Pin(pin3, Pin.OUT)
         self._pin4 = Pin(pin4, Pin.OUT)
 
+    def reset_target_start_point(self):
+        self.start_from = self.position
+
     def set_target(self, steps):
         self.target = self.position + int(steps)
-        self.start_from = self.position
 
     @property
     def is_moving(self):
