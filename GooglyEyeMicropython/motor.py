@@ -9,7 +9,12 @@ class Motor:
 
     # never reset. This may be a bad idea, can cross that bridge when we come to it...
     position = 0
-    _minimum_interval_between_steps_us = 1000
+
+    # track when we took the last step
+    previous_step_us = 0
+
+    # speed and accelerations
+    max_speed = 800  # steps per second
 
     # motor sequence related
     _step_index = 0
@@ -38,13 +43,23 @@ class Motor:
 
     def step(self, steps):
 
-        time.sleep_us(self._minimum_interval_between_steps_us)
-
         if steps == 0:
             return False
 
         # which way to go
         dir = 1 if steps > 0 else -1
+
+        # print("steps {0}".format(steps))
+
+        # speed
+        speed = self.max_speed
+
+        # when is the earliest we should take next step?
+        min_interval_us = 1 / speed * 1_000_000
+        step_diff = time.ticks_diff(time.ticks_us(), self.previous_step_us)
+        if step_diff < min_interval_us:
+            # print("too soon: {0} < {1}".format(step_diff, min_interval_us))
+            return False  # too soon to take the step
 
         # prep step (reset if needed) and take it
         self._step_index += dir
@@ -52,7 +67,9 @@ class Motor:
         self.writeStepToPins()
 
         # update our tracking of where we are
+        self.previous_step_us = time.ticks_us()
         self.position += dir
+        return True
 
     def sleep(self):
         self.writeToPins(0, 0, 0, 0)
