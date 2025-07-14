@@ -208,6 +208,9 @@ class Motor:
                 )
             )
 
+        self.update_after_isr_noon_position()
+
+    def update_after_isr_noon_position(self):
         # If we also have _steps_across_home we can determine our position
         if self._steps_across_home:
             # Now calibrated, set angle correctly
@@ -264,6 +267,13 @@ class PupilMotor(Motor):
 
 
 class GlintMotor(Motor):
+
+    # need to track these as part of calibration as they affect us
+    _pupil_enter_position = 0
+    _pupil_previous_enter_position = 0
+    _pupil_exit_position = 0
+    _pupil_previous_exit_position = 0
+
     def __init__(self, pupil_motor):
         super().__init__(
             "glint",
@@ -287,6 +297,8 @@ class GlintMotor(Motor):
     def calibrate_drift(self):
         self.goto_noon()
 
+        glint_steps_per_rotation = self._steps_per_rotation
+
         # note down current positions
         pupil_start_pos = self._pupil_motor.position
         glint_start_pos = self.position
@@ -303,13 +315,30 @@ class GlintMotor(Motor):
         glint_end_pos = self.position
         print("  end: pupil {0}, glint {1}".format(pupil_end_pos, glint_end_pos))
 
+        pupil_delta = pupil_end_pos - pupil_start_pos
+        glint_steps_to_return_to_noon = glint_end_pos - glint_start_pos
         print(
-            "delta: pupil {0}, glint {1}".format(
-                pupil_end_pos - pupil_start_pos, glint_end_pos - glint_start_pos
+            "steps to noon: pupil {0}, glint {1}".format(
+                pupil_delta, glint_steps_to_return_to_noon
             )
         )
 
+        # assume pupil movement causes glint to drift in same direction (design intent in hardware to combat gear backlash).
+        glint_drift = glint_steps_per_rotation - glint_steps_to_return_to_noon
+        glint_drift_per_pupil_step = glint_drift / pupil_delta
+        print(glint_drift)
+        print(glint_drift_per_pupil_step)
+
     def isr_cb(self, pin):
         # Magnet may trigger switch at odd times - so make sure pupil is in home zone
-        if self._pupil_motor.is_in_home_zone():
-            super().isr_cb(pin)
+        if not self._pupil_motor.is_in_home_zone():
+            print("ignoring glint isr as pupil is not in home zone")
+            return
+
+        # log pupil values
+        if pin.value() == self._sensor_rising_is_enter:
+            self._pupil_enter_position = self._pupil_motor.position
+        else:
+            self._pupil_exit_position = self._pupil_motor.position
+
+        super().isr_cb(pin)
