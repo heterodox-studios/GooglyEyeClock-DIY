@@ -22,6 +22,7 @@ class Hand:
 
     @target_angle.setter
     def target_angle(self, target):
+        target = target % 360
 
         # If the angle is too small then don't set it
         angle_delta_cw = (target - self.current_angle) % 360
@@ -97,7 +98,9 @@ class Hand:
         self.motor.set_target(steps_delta)
         self.motor.step()
         self.update_after_isr()
-        gc.collect()
+
+        if self.motor.position % 100 == 0:
+            gc.collect()
 
     ##############
 
