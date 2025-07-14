@@ -18,10 +18,13 @@ class Motor:
 
     # speed and accelerations
     max_speed = 800  # steps per second
-    min_speed = 2
-    max_interval_between_steps_us = int(1 * 1_000_000)
-    # acceleration = 100  # steps per sec per sec
-    # stopping_distance = 3200  # FIXME - calculate from equation d = v^2/(2*a)
+    min_speed = 10
+    acceleration_coefficient = 0.5
+    acceptable_sleep_time_us = 400
+
+    @property
+    def max_interval_between_steps_us(self):
+        return int(1 / self.min_speed * 1_000_000)
 
     # motor sequence related
     _step_index = 0
@@ -48,7 +51,7 @@ class Motor:
         self._pin3 = Pin(pin3, Pin.OUT)
         self._pin4 = Pin(pin4, Pin.OUT)
 
-    def move(self, steps):
+    def set_target(self, steps):
         self.target = self.position + int(steps)
         self.start_from = self.position
 
@@ -59,55 +62,56 @@ class Motor:
     def step(self):
 
         steps = self.target - self.position
-        if steps == 0:  # FIXME - buggy for decel to reverse direction
+        if steps == 0:
             return False
+
+        # Calculate the speed
+        velocity = self.calculate_velocity(steps)
+        speed = abs(velocity)
+        dir = 1 if velocity > 0 else -1
 
         # are we too soon?
         now_us = time.ticks_us()
         us_until_next_step = time.ticks_diff(self.next_step_us, now_us)
-        if (
-            us_until_next_step > 0
-            and us_until_next_step < self.max_interval_between_steps_us
-        ):
-            # print(
-            #     "too soon: {0} > 0  from  time.ticks_diff({1}, {2})".format(
-            #         us_until_next_step, self.next_step_us, now_us
-            #     )
-            # )
-            # return False  # too soon to take the step
-            print("sleeping for {0} us".format(us_until_next_step))
-            time.sleep_us(us_until_next_step)
 
-        # speed
-        velocity = self.calculate_velocity(steps)
-        speed = abs(velocity)
-        dir = 1 if velocity > 0 else -1
+        if us_until_next_step < 0:
+            # we're due to run
+            pass
+        elif us_until_next_step > self.max_interval_between_steps_us:
+            # timer is unreasonably long so we've looped
+            pass
+        elif us_until_next_step > self.acceptable_sleep_time_us:
+            # too long to sleep, let other code run
+            return False
+        elif us_until_next_step > 0:
+            # short enough interval - might as well just wait here
+            time.sleep_us(us_until_next_step)
 
         # prep step (reset if needed) and take it
         self._step_index += dir
         self._step_index = self._step_index % self._step_count
         self.writeStepToPins()
 
-        # update our tracking of where we are
+        # At our current speed store when we should take our next step
         min_interval_us = int(1 / speed * 1_000_000)
         self.next_step_us = time.ticks_add(now_us, min_interval_us)
+
+        # update our tracking of where we are
         self.position += dir
         return True
 
     def calculate_velocity(self, distance):
         dir = 1 if distance > 0 else -1
 
+        # are we closer to start or end?
+        shortest_dist = min(abs(self.position - self.start_from), abs(distance))
+
         # poor mans acceleration equations
-        time_factor = 0.5
-        dist_from_start = abs(self.position - self.start_from)
-        speed_from_start = dist_from_start / time_factor
-        speed_to_end = abs(distance) / time_factor
+        speed = shortest_dist / self.acceleration_coefficient
 
         # check that speed is within allowed norms
-        speed = min(speed_from_start, speed_to_end, self.max_speed)
+        speed = min(speed, self.max_speed)
         speed = max(speed, self.min_speed)
-
-        # print(distance, speed)
 
         return dir * speed
 
