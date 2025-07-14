@@ -270,15 +270,23 @@ class Hand:
             new_noon_position = int(self._enter_position + steps_to_home_center)
 
             angle_before_noon_update = self.current_angle  # remove me
+            angle_previously_determined = self._position_has_been_determined
 
             self._last_confirmed_noon_position = new_noon_position
             self._position_has_been_determined = True
 
-            print(
-                "{0} position determined: angle was {1}, now {2}".format(
-                    self._name, angle_before_noon_update, self.current_angle
+            if angle_previously_determined:
+                print(
+                    "{0} position adjusted: angle was {1}, now {2}".format(
+                        self._name, angle_before_noon_update, self.current_angle
+                    )
                 )
-            )
+            else:
+                print(
+                    "{0} position determined: angle now {1}".format(
+                        self._name, self.current_angle
+                    )
+                )
 
     def update_after_isr_entry_to_exit(self):
         # entry_to_exit
