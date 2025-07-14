@@ -11,10 +11,6 @@ class Motor:
     position = 0
     lifetime_angle = 0
 
-    # values representing where we are and want to be. These are >= 0 and < 360 (ie 360 -> 0).
-    # current_angle is frequently reset by deliberate and drive by calibration.
-    current_angle = 0
-
     _minimum_angle_delta = 0.2
 
     _minimum_position_delta_for_isr = 500
@@ -31,6 +27,7 @@ class Motor:
     _steps_per_rotation = 0
     _steps_across_home = 0
     _degrees_per_step = 0
+    _last_confirmed_noon_position = 0
     _position_has_been_determined = False
 
     # motor sequence related
@@ -64,6 +61,18 @@ class Motor:
         self._sensor_rising_is_enter = sensor_rising_is_enter
         self._sensor_pin = Pin(sensor_pin, mode=Pin.IN, pull=Pin.PULL_UP)
         self._sensor_pin.irq(self.isr_cb, Pin.IRQ_FALLING | Pin.IRQ_RISING)
+
+    @property
+    def current_angle(self):
+        noon = self._last_confirmed_noon_position
+        steps_per_rot = self._steps_per_rotation
+
+        try:
+            delta_to_noon = self.position - noon
+            delta_as_angle = delta_to_noon / steps_per_rot * 360
+            return delta_as_angle % 360
+        except ZeroDivisionError:
+            raise Exception("Cannot calculate current_angle as have not calibrated yet")
 
     def calibrate(self):
         """Spin the motor until we have calibrated, and then stop at noon."""
@@ -131,7 +140,6 @@ class Motor:
 
         # update our tracking of where we are
         self.position += dir
-        self.current_angle += self._degrees_per_step % 360
         self.lifetime_angle += self._degrees_per_step
 
         self.update_after_isr()
@@ -205,17 +213,18 @@ class Motor:
             # Now calibrated, set angle correctly
             # Currently we have just entered home
             steps_to_home_center = self._steps_across_home / 2
-            angle_to_home_center = steps_to_home_center * self._degrees_per_step
-            new_current_angle = 360 - angle_to_home_center
+            new_noon_position = int(self._enter_position + steps_to_home_center)
 
-            if True:
-                delta = self.current_angle - new_current_angle
-                if delta > 180:
-                    delta -= 360
-                print("{0} angle correction: {1}".format(self._name, delta))
+            old_angle = self.current_angle  # remove me
 
-            self.current_angle = new_current_angle
+            self._last_confirmed_noon_position = new_noon_position
             self._position_has_been_determined = True
+
+            print(
+                "{0} at noon correction: angle was {1}, now {2}".format(
+                    self._name, old_angle, self.current_angle
+                )
+            )
 
     def update_after_isr_entry_to_exit(self):
         # entry_to_exit
