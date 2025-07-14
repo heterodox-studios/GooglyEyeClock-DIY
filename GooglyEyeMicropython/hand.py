@@ -12,7 +12,7 @@ class Hand:
     #     # two values that are never reset. This may be a bad idea, can cross that bridge when we come to it...
     #     lifetime_angle = 0
 
-    #     _minimum_angle_delta = 0.2
+    _minimum_angle_delta = 360 / 12 / 60 / 2  # 30 seconds on hour hand
 
     _target_angle = 0
 
@@ -22,6 +22,20 @@ class Hand:
 
     @target_angle.setter
     def target_angle(self, target):
+
+        # If the angle is too small then don't set it
+        angle_delta_cw = (target - self.current_angle) % 360
+        if (
+            angle_delta_cw < self._minimum_angle_delta
+            or angle_delta_cw > 360 - self._minimum_angle_delta
+        ):
+            print(
+                "ignoring target_angle {1} because of small delta small delta {0}".format(
+                    angle_delta_cw, target
+                )
+            )
+            return
+
         self._target_angle = target
         self.motor.reset_target_start_point()
 
