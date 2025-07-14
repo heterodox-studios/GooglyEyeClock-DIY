@@ -59,14 +59,14 @@ class Motor:
     def is_moving(self):
         return self.target != self.position
 
-    def step(self):
+    def step(self, soft=True):
 
         steps = self.target - self.position
         if steps == 0:
             return False
 
         # Calculate the speed
-        velocity = self.calculate_velocity(steps)
+        velocity = self.calculate_velocity(steps) if soft else self.max_speed
         speed = abs(velocity)
         dir = 1 if velocity > 0 else -1
 
