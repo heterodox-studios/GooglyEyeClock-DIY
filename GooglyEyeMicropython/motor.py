@@ -14,7 +14,6 @@ class Motor:
     # values representing where we are and want to be. These are >= 0 and < 360 (ie 360 -> 0).
     # current_angle is frequently reset by deliberate and drive by calibration.
     current_angle = 0
-    target_angle = 0
 
     _minimum_angle_delta = 0.2
 
@@ -105,18 +104,15 @@ class Motor:
             self.calibrate()
 
     def step_to_target_angle(self, target):
-        self.target_angle = target
-        while (
-            self.cw_delta_from_current_to_target() > 0
-            and 360 - self.cw_delta_from_current_to_target() > self._minimum_angle_delta
-        ):
+
+        while True:
+            cw_delta = (target - self.current_angle) % 360
+
+            if cw_delta < self._minimum_angle_delta:
+                break
+
             self.step()
             time.sleep_us(self._minimum_interval_between_steps_us)
-
-    def cw_delta_from_current_to_target(self):
-        """returns cw angle to travel to get from current to target"""
-        cw_delta = self.target_angle - self.current_angle
-        return cw_delta % 360
 
     def take_steps(self, num):
         dir = 1 if num > 0 else -1
