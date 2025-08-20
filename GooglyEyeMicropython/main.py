@@ -3,7 +3,7 @@ from hand import PupilHand, GlintHand
 
 
 pupil_hand = PupilHand()
-glint_hand = GlintHand(parent=pupil_hand)
+glint_hand = GlintHand()
 
 if False:
     pupil_hand.calibrate()
@@ -26,35 +26,6 @@ def goto(hand, angle):
     hand.sleep()
 
 
-# goto(glint_hand, 180)
-# goto(glint_hand, 90)
-
-
-# for _ in (glint_hand, pupil_hand):
-#     print(_._name, _.current_angle)
-
-# goto(pupil_hand, 90)
-# for _ in (glint_hand, pupil_hand):
-#     print(_._name, _.current_angle)
-
-# goto(glint_hand, 180)
-# for _ in (glint_hand, pupil_hand):
-#     print(_._name, _.current_angle)
-
-# # set up for next test run
-# time.sleep(10)
-# goto(pupil_hand, 350)
-# goto(glint_hand, 350)
-# for _ in (glint_hand, pupil_hand):
-#     print(_._name, _.current_angle)
-
-
-# goto(pupil_hand, 15)
-# goto(pupil_hand, 15.1)
-# goto(pupil_hand, 14.9)
-
-# goto(pupil_hand, 3 * 360 / 12 + 0 * 360 / 12 / 60)  # 03:00
-# goto(pupil_hand, 3 * 360 / 12 + 1 * 360 / 12 / 60)  # 03:01
-
-# for _ in [x / 10.0 for x in range(3520, 3540, 1)]:
-#     goto(pupil_hand, _)
+for _ in (90, 180, 270, 360):
+    goto(pupil_hand, _)
+    goto(glint_hand, _)
