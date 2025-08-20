@@ -7,7 +7,12 @@ class Display:
         self.hour_hand = hour_hand
         self.minute_hand = minute_hand
 
-    def show(self, hh=0, mm=0, ss=0):
+    def show_datetime(self, dt):
+        # year, month, day, weekday, hours, minutes, seconds, subseconds
+        print(dt)
+        return self.show_hms(dt[4], dt[5], dt[6])
+
+    def show_hms(self, hh=0, mm=0, ss=0):
 
         # check we are within bouds
         hh = int(hh) % 12
