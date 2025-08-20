@@ -13,7 +13,7 @@ glint_hand.calibrate()
 #     steps_per_rotation=14_780, steps_across_home=370, parent_drift_factor=1.4
 # )
 
-anch cha
+
 def goto(hand, angle):
     time.sleep(1)
     print("goto", angle, "from", hand.current_angle)
