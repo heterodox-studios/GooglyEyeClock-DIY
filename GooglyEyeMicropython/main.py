@@ -5,13 +5,12 @@ from hand import PupilHand, GlintHand
 pupil_hand = PupilHand()
 glint_hand = GlintHand(parent=pupil_hand)
 
-pupil_hand.fast_calibration(steps_per_rotation=14_260, steps_across_home=590)
-
-glint_hand.calibrate()
-
-# glint_hand.fast_calibration(
-#     steps_per_rotation=14_780, steps_across_home=370, parent_drift_factor=1.4
-# )
+if False:
+    pupil_hand.calibrate()
+    glint_hand.calibrate()
+else:
+    pupil_hand.fast_calibration(steps_per_rotation=22_205, steps_across_home=608)
+    glint_hand.fast_calibration(steps_per_rotation=11_426, steps_across_home=300)
 
 
 def goto(hand, angle):
