@@ -113,7 +113,7 @@ class Hand:
         self.wake()
         self.target_angle = target
 
-        print("run_to", target, "from", self.current_angle)
+        # print("run_to", target, "from", self.current_angle)
 
         while self.is_moving:
             self.move_to_target()
@@ -234,11 +234,11 @@ class Hand:
             steps_per_rotation = self._enter_position - previous_enter_pos
             self._steps_per_rotation = steps_per_rotation
 
-        print(
-            "{2} enter: {0} ({1})".format(
-                self._enter_position, self._steps_per_rotation, self._name
-            )
-        )
+        # print(
+        #     "{2} enter: {0} ({1})".format(
+        #         self._enter_position, self._steps_per_rotation, self._name
+        #     )
+        # )
 
         self.update_after_isr_noon_position()
 
@@ -291,11 +291,11 @@ class Hand:
                 self._exit_position - self._previous_enter_position
             )
 
-        print(
-            "{2} exit: {0} ({1})".format(
-                self._exit_position, self._steps_across_home, self._name
-            )
-        )
+        # print(
+        #     "{2} exit: {0} ({1})".format(
+        #         self._exit_position, self._steps_across_home, self._name
+        #     )
+        # )
 
 
 class PupilHand(Hand):
