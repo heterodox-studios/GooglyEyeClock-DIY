@@ -23,30 +23,28 @@ class Clock:
 
     def _debug_pins(self):
         # debug the pins
-        print(self.hour_increment_pin.value(), self.minute_increment_pin.value())
+        print(self._hour_increment_pin.value(), self._minute_increment_pin.value())
 
     def _setup_interupts(self):
-        # setup the hour increment pin
-        self.hour_increment_pin = Pin(
-            config.rtc["hour_increment_pin"], Pin.IN, Pin.PULL_UP
-        )
-        self.hour_increment_pin.irq(
-            trigger=Pin.IRQ_FALLING, handler=self._increment_hour
+        self._hour_increment_pin = self._setup_interupt(
+            "hour_increment_pin", self._isr_increment_hour
         )
 
-        # setup the minute increment pin
-        self.minute_increment_pin = Pin(
-            config.rtc["minute_increment_pin"], Pin.IN, Pin.PULL_UP
-        )
-        self.minute_increment_pin.irq(
-            trigger=Pin.IRQ_FALLING, handler=self._increment_minute
+        self._minute_increment_pin = self._setup_interupt(
+            "minute_increment_pin", self._isr_increment_minute
         )
 
-    def _increment_hour(self, pin):
+    def _setup_interupt(self, pin_name, handler):
+        # setup a pin with an interupt
+        pin = Pin(config.clock[pin_name], Pin.IN, Pin.PULL_UP)
+        pin.irq(trigger=Pin.IRQ_FALLING, handler=handler)
+        return pin
+
+    def _isr_increment_hour(self, pin):
         print("Hour increment pin pressed")
         self._increment_time(hour=1)
 
-    def _increment_minute(self, pin):
+    def _isr_increment_minute(self, pin):
         print("Minute increment pin pressed")
         self._increment_time(minute=1)
 

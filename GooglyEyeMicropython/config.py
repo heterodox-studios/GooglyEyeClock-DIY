@@ -19,7 +19,7 @@ glint_stepper = {
 }
 
 # RTC pin definitions
-rtc = {
+clock = {
     "hour_increment_pin": 21,
     "minute_increment_pin": 20,
     "debounce_time_ms": 50,
