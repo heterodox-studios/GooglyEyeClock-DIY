@@ -10,11 +10,11 @@ class Display:
     def show_datetime(self, dt):
         # year, month, day, weekday, hours, minutes, seconds, subseconds
         print(dt)
-        return self.show_hms(dt[4], dt[5], dt[6])
+        return self.show_hms(dt[4], dt[5])
 
     def show_hms(self, hh=0, mm=0, ss=0):
 
-        # check we are within bouds
+        # check we are within bounds
         hh = int(hh) % 12
         mm = int(mm) % 60
         ss = int(ss) % 60
