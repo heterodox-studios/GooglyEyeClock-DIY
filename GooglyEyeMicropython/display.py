@@ -35,8 +35,8 @@ class Display:
         self.hour_hand.target_angle = hour_angle
         self.minute_hand.target_angle = minute_angle
 
-        self.hour_hand.wake()
-        self.minute_hand.wake()
+        # self.hour_hand.wake()
+        # self.minute_hand.wake()
 
         while self.hour_hand.is_moving or self.minute_hand.is_moving:
             self.hour_hand.move_to_target()
