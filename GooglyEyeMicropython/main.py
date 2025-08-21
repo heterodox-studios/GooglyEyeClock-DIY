@@ -20,5 +20,4 @@ clock = Clock()
 #     time.sleep(60)
 
 while True:
-    clock._debug_pins()
     time.sleep(1)

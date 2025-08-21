@@ -22,5 +22,5 @@ glint_stepper = {
 clock = {
     "hour_increment_pin": 21,
     "minute_increment_pin": 20,
-    "debounce_time_ms": 50,
+    "debounce_time_ms": 20,
 }

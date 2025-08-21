@@ -1,9 +1,16 @@
 from machine import Pin, RTC
 import config
 import math
+import time
+from button import Button
 
 
 class Clock:
+
+    _debounce_last_seen = {
+        "hour": 0,
+        "minute": 0,
+    }
 
     def __init__(self) -> None:
         # set up the RTC
@@ -15,36 +22,21 @@ class Clock:
         print(rtc.datetime())
         self.rtc = rtc
 
-        # setup interupts
-        self._setup_interupts()
+        self.hour_button = Button(
+            config.clock["hour_increment_pin"], self._increment_hour
+        )
+        self.minute_button = Button(
+            config.clock["minute_increment_pin"], self._increment_minute
+        )
 
     def now(self):
         return self.rtc.datetime()
 
-    def _debug_pins(self):
-        # debug the pins
-        print(self._hour_increment_pin.value(), self._minute_increment_pin.value())
-
-    def _setup_interupts(self):
-        self._hour_increment_pin = self._setup_interupt(
-            "hour_increment_pin", self._isr_increment_hour
-        )
-
-        self._minute_increment_pin = self._setup_interupt(
-            "minute_increment_pin", self._isr_increment_minute
-        )
-
-    def _setup_interupt(self, pin_name, handler):
-        # setup a pin with an interupt
-        pin = Pin(config.clock[pin_name], Pin.IN, Pin.PULL_UP)
-        pin.irq(trigger=Pin.IRQ_FALLING, handler=handler)
-        return pin
-
-    def _isr_increment_hour(self, pin):
+    def _increment_hour(self):
         print("Hour increment pin pressed")
         self._increment_time(hour=1)
 
-    def _isr_increment_minute(self, pin):
+    def _increment_minute(self):
         print("Minute increment pin pressed")
         self._increment_time(minute=1)
 
