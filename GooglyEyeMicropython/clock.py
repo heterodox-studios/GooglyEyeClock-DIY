@@ -15,10 +15,10 @@ class Clock:
     def __init__(self) -> None:
         # set up the RTC
         rtc = RTC()
-        rtc.datetime(
-            # year, month, day, weekday, hours, minutes, seconds, subseconds
-            (2020, 1, 1, 0, 0, 0, 0, 0)
-        )
+
+        # when raspberry pi is powered on the datetime tuple appears to be
+        (2021, 1, 1, 4, 0, 0, 4, 0)
+
         print(rtc.datetime())
         self.rtc = rtc
 
