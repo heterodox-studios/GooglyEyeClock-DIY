@@ -17,3 +17,10 @@ glint_stepper = {
     "sensor_pin": 15,
     "sensor_rising_is_enter": True,
 }
+
+# RTC pin definitions
+rtc = {
+    "hour_increment_pin": 21,
+    "minute_increment_pin": 20,
+    "debounce_time_ms": 50,
+}
