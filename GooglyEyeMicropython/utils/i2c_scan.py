@@ -1,5 +1,6 @@
 import machine
 
+# i2c = machine.I2C(0, scl=5, sda=4)
 i2c = machine.I2C(0)
 
 devices = i2c.scan()
