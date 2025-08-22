@@ -1,6 +1,7 @@
 import time
 from machine import Pin, Timer
-import config
+
+from . import config
 
 
 class Button:

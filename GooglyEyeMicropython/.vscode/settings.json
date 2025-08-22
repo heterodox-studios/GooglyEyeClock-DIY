@@ -10,6 +10,8 @@
         "~/.micropico-stubs/included"
     ],
     "python.analysis.extraPaths": [
-        "~/.micropico-stubs/included"
+        "~/.micropico-stubs/included",
+        "./lib",
+        "./googly_eye_clock"
     ]
 }

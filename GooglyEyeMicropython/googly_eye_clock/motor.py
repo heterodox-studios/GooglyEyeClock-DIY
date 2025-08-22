@@ -3,7 +3,7 @@ import time
 from machine import Pin
 
 
-import config
+from . import config
 
 
 class Motor:

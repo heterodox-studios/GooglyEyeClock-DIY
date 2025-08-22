@@ -1,7 +1,5 @@
 import time, gc
-from hand import PupilHand, GlintHand
-from display import Display
-from clock import Clock
+from googly_eye_clock import PupilHand, GlintHand, Display, Clock
 
 pupil_hand = PupilHand()
 glint_hand = GlintHand()

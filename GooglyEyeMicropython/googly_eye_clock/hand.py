@@ -3,8 +3,8 @@ import time, gc
 from machine import Pin
 
 
-import config
-from motor import PupilMotor, GlintMotor
+from . import config
+from .motor import PupilMotor, GlintMotor
 
 
 class Hand:

@@ -1,9 +1,11 @@
-from machine import Pin, RTC, I2C
-from ds3231_gen import DS3231
-import config
 import math
 import time
-from button import Button
+
+from machine import Pin, RTC, I2C
+
+from ds3231_gen import DS3231
+
+from . import config, Button
 
 
 class Clock:

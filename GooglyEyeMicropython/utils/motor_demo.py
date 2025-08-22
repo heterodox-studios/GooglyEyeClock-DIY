@@ -1,5 +1,8 @@
-import time, gc
-from motor import PupilMotor, GlintMotor
+import time, gc, sys
+
+sys.path.append("..")
+
+from googly_eye_clock.motor import PupilMotor, GlintMotor
 
 pupil_motor = PupilMotor()
 glint_motor = GlintMotor()

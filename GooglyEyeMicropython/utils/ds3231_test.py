@@ -2,8 +2,14 @@
 # Firstly print the time on pico startup, then get and print the time from the ds3231
 # April 28 2025
 
+
+import sys
 from time import sleep, localtime
 from machine import RTC, I2C, Pin
+
+sys.path.append("..")
+sys.path.append("../lib")
+
 from ds3231_gen import DS3231
 
 rtc = RTC()
