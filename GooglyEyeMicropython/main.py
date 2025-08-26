@@ -4,7 +4,9 @@ from googly_eye_clock import PupilHand, GlintHand, Display, Clock
 pupil_hand = PupilHand()
 glint_hand = GlintHand()
 display = Display(pupil_hand, glint_hand)
+
 clock = Clock()
+clock.set_rtc_from_ds3231()
 
 if False:
     pupil_hand.calibrate()
@@ -14,5 +16,6 @@ else:
     glint_hand.fast_calibration(steps_per_rotation=11_426, steps_across_home=300)
 
 while True:
-    display.show_datetime(clock.now())
+    hh, mm, ss = clock.hms()
+    display.show_hms(hh, mm, 0)
     time.sleep(1)
