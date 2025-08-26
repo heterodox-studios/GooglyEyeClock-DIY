@@ -14,13 +14,13 @@ class Display:
         mm = int(mm) % 60
         ss = int(ss) % 60
 
-        print(hh, mm, ss)
+        # print(hh, mm, ss)
 
         # calculate fractional times
         frac_mm = mm + ss / 60
         frac_hh = hh + frac_mm / 60
 
-        print(frac_hh, frac_mm)
+        # print(frac_hh, frac_mm)
 
         # calculate the angle for each hand
         second_angle = 0

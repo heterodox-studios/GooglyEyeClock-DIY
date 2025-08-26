@@ -27,11 +27,11 @@ class Hand:
             angle_delta_cw < self._minimum_angle_delta
             or angle_delta_cw > 360 - self._minimum_angle_delta
         ):
-            print(
-                "ignoring target_angle {1} because of small delta small delta {0}".format(
-                    angle_delta_cw, target
-                )
-            )
+            # print(
+            #     "ignoring target_angle {1} because of small delta small delta {0}".format(
+            #         angle_delta_cw, target
+            #     )
+            # )
             return
 
         self._target_angle = target
@@ -283,7 +283,7 @@ class Hand:
         # what is the delta? return if too small (means jitter, or running backwards)
         entry_delta = self._exit_position - previous_exit_pos
         if entry_delta < self._minimum_position_delta_for_isr:
-            print(self._name, "ignoring small entry delta", entry_delta)
+            # print(self._name, "ignoring small entry delta", entry_delta)
             return
 
         if self._previous_enter_position:

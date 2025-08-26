@@ -34,16 +34,16 @@ class Clock:
         )
 
     def set_rtc_from_ds3231(self):
-        print("before set_rtc_from_ds3231")
-        print("rtc   ", self.hms_from_rtc())
-        print("ds3231", self.hms_from_ds3231())
+        # print("before set_rtc_from_ds3231")
+        # print("rtc   ", self.hms_from_rtc())
+        # print("ds3231", self.hms_from_ds3231())
 
         YY, MM, DD, hh, mm, ss, wday, _ = self.ds3231.get_time()
         self.rtc.datetime((YY, MM, DD, wday, hh, mm, ss, 0))
 
-        print("after set_rtc_from_ds3231")
-        print("rtc   ", self.hms_from_rtc())
-        print("ds3231", self.hms_from_ds3231())
+        # print("after set_rtc_from_ds3231")
+        # print("rtc   ", self.hms_from_rtc())
+        # print("ds3231", self.hms_from_ds3231())
 
     def set_ds3231_from_rtc(self):
         YY, MM, DD, wday, hh, mm, ss, subseconds = self.rtc.datetime()
@@ -90,7 +90,7 @@ class Clock:
         mm = new_minute % 60
         ss = 0  # zero seconds
 
-        print("new time", hh, mm, ss)
+        # print("new time", hh, mm, ss)
 
         # update the RTC with the new time
         self.hms_to_rtc(hh, mm, ss)
