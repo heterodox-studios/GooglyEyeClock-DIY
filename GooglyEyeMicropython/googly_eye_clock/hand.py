@@ -113,7 +113,7 @@ class Hand:
         self.wake()
         self.target_angle = target
 
-        # print("run_to", target, "from", self.current_angle)
+        print("run_to", target, "from", self.current_angle)
 
         while self.is_moving:
             self.move_to_target()
@@ -151,13 +151,19 @@ class Hand:
 
         self.motor.position = 0
 
-    def fast_calibration(self, steps_per_rotation, steps_across_home):
+    def fast_calibration(self):
+
+        # capture this - set in config and reset below
+        steps_per_rotation = self._steps_per_rotation
+        steps_across_home = self._steps_across_home
+
         self.reset_calibration()
         self.move_until_calibrated(-1000)
         self.reset_calibration()
+
+        # put the steps per rotation and across home back, to speed things up
         self._steps_per_rotation = steps_per_rotation
         self._steps_across_home = steps_across_home
-
         self.move_until_calibrated()
 
     def calibrate(self):
@@ -306,6 +312,8 @@ class PupilHand(Hand):
             config.pupil_stepper["sensor_pin"],
             config.pupil_stepper["sensor_rising_is_enter"],
         )
+        self._steps_per_rotation = config.pupil_stepper["steps_per_rotation"]
+        self._steps_across_home = config.pupil_stepper["steps_across_home"]
 
 
 class GlintHand(Hand):
@@ -317,3 +325,5 @@ class GlintHand(Hand):
             config.glint_stepper["sensor_pin"],
             config.glint_stepper["sensor_rising_is_enter"],
         )
+        self._steps_per_rotation = config.glint_stepper["steps_per_rotation"]
+        self._steps_across_home = config.glint_stepper["steps_across_home"]

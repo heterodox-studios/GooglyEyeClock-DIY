@@ -12,8 +12,8 @@ if False:
     pupil_hand.calibrate()
     glint_hand.calibrate()
 else:
-    pupil_hand.fast_calibration(steps_per_rotation=22_205, steps_across_home=608)
-    glint_hand.fast_calibration(steps_per_rotation=11_426, steps_across_home=300)
+    pupil_hand.fast_calibration()
+    glint_hand.fast_calibration()
 
 while True:
     hh, mm, ss = clock.hms()

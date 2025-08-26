@@ -6,6 +6,8 @@ pupil_stepper = {
     "pin4": 13,
     "sensor_pin": 14,
     "sensor_rising_is_enter": True,
+    "steps_per_rotation": 22_205,
+    "steps_across_home": 608,
 }
 
 # glint motor pin definitions
@@ -16,6 +18,8 @@ glint_stepper = {
     "pin4": 6,
     "sensor_pin": 15,
     "sensor_rising_is_enter": True,
+    "steps_per_rotation": 11_426,
+    "steps_across_home": 300,
 }
 
 # RTC pin definitions
